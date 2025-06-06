@@ -7,6 +7,7 @@ let timerInterval = null;   // タイマー更新用 interval ID
 // DOM 要素を取得
 const fileSelect = document.getElementById("file-select");
 const startBtn = document.getElementById("start-btn");
+const inputPreview = document.getElementById("input-preview");
 const textDisplay = document.getElementById("text-display");
 const textInput = document.getElementById("text-input");
 const timerSpan = document.getElementById("timer");
@@ -24,7 +25,6 @@ function loadFileList() {
       return res.json();
     })
     .then((fileList) => {
-      // fileList は ["sample1.md", "sample2.md", ...] のような形式を想定
       fileList.forEach((filename) => {
         const option = document.createElement("option");
         option.value = filename;
@@ -58,8 +58,6 @@ function fetchPracticeText(filename) {
       return res.text();
     })
     .then((markdown) => {
-      // Markdown の見た目を変換せず、プレーンテキストとして扱う
-      // (必要なら Markdown-it 等で整形してもよいが、本サンプルでは生テキスト)
       practiceText = markdown.replace(/\r\n/g, "\n");
       resetTypingArea();
       renderDisplay();
@@ -77,7 +75,8 @@ function resetTypingArea() {
   clearInterval(timerInterval);
   timerSpan.textContent = "0.00";
   startTime = null;
-  textDisplay.scrollTop = 0;
+  inputPreview.innerHTML = ""; 
+  textDisplay.innerHTML = "";
   textInput.value = "";
   textInput.disabled = false;
   textInput.focus();
@@ -85,57 +84,61 @@ function resetTypingArea() {
 
 // ---- 練習テキストの表示を更新する ---- //
 function renderDisplay() {
-  // practiceText と userInput を比較しながら span を生成
-  const fragment = document.createDocumentFragment();
-  for (let i = 0; i < practiceText.length; i++) {
+  // 1) userInput（入力済み文字）をプレビュー領域に描画
+  const previewFragment = document.createDocumentFragment();
+  for (let i = 0; i < userInput.length; i++) {
     const span = document.createElement("span");
     const char = practiceText[i];
-    if (i < userInput.length) {
-      if (userInput[i] === char) {
-        // 正しく入力済み：黒
-        span.style.color = "#333";
-      } else {
-        // 間違って入力済み：赤
-        span.style.color = "#e74c3c";
-      }
+    if (userInput[i] === char) {
+      span.style.color = "#333"; // 正しく入力
     } else {
-      // 未入力：グレー
-      span.style.color = "#999";
+      span.style.color = "#e74c3c"; // 間違って入力
     }
+    if (userInput[i] === "\n") {
+      span.innerHTML = "<br/>";
+    } else {
+      span.textContent = userInput[i];
+    }
+    previewFragment.appendChild(span);
+  }
+  inputPreview.innerHTML = "";
+  inputPreview.appendChild(previewFragment);
 
-    // 改行文字は可視化せず、そのまま反映
+  // 2) practiceText の残り部分（未入力分）を text-display に灰色で表示
+  const remainingText = practiceText.slice(userInput.length);
+  const displayFragment = document.createDocumentFragment();
+  for (let i = 0; i < remainingText.length; i++) {
+    const span = document.createElement("span");
+    const char = remainingText[i];
+    span.style.color = "#999"; // 未入力は灰色
     if (char === "\n") {
       span.innerHTML = "<br/>";
     } else {
-      // HTML エスケープ
       span.textContent = char;
     }
-    fragment.appendChild(span);
+    displayFragment.appendChild(span);
   }
-
-  // すでに存在する子要素をすべてクリアしてから追加
   textDisplay.innerHTML = "";
-  textDisplay.appendChild(fragment);
+  textDisplay.appendChild(displayFragment);
 }
 
 // ---- タイピング可能にし、キー入力をハンドル ---- //
 function activateTyping() {
   // スタート時刻を記録
   startTime = Date.now();
-  // 500ms ごとにタイマー更新
+  // 100ms ごとにタイマー更新
   timerInterval = setInterval(updateTimer, 100);
 
   // テキストボックス（透明）に入力があるたびに処理
   textInput.addEventListener("input", onUserInput);
-  // バックスペース等も含めたキー押下を検知（記号入力のサポート表示用）
+  // 記号入力サポートのため keydown も監視
   textInput.addEventListener("keydown", onKeyDown);
 }
 
 // ---- ユーザーの入力を受け取る ---- //
 function onUserInput(e) {
   const val = textInput.value;
-  // 入力は常に先頭からのみ受け付け。テキスト選択や中間挿入は不可とする前提で簡易化
-  // 末尾の余分な入力は削除
+  // 最大文字数を超えないように調整
   if (val.length > practiceText.length) {
     textInput.value = val.slice(0, practiceText.length);
     return;
@@ -151,12 +154,8 @@ function onUserInput(e) {
 
 // ---- キー押下時（記号入力サポート） ---- //
 function onKeyDown(e) {
-  // 記号が入力されようとした場合（「。」と「、」以外の記号）、ポップアップを出す
-  // ここでは、入力される文字が「jis 配列外の記号」に該当するかを簡易チェック
   const allowedPunctuations = ["、", "。"];
   const key = e.key;
-
-  // key が長さ 1 の文字で、空白文字でもない場合にチェック
   if (key.length === 1 && !/\w|\s/.test(key)) {
     if (!allowedPunctuations.includes(key)) {
       e.preventDefault();
@@ -168,8 +167,6 @@ function onKeyDown(e) {
 
 // ---- 記号入力サポート用のポップアップ表示 ---- //
 function showPunctuationHelp(char) {
-  // どのキー操作かを簡易的に示す
-  // ここでは JIS 配列一般論として例を出す。実際にはユーザーの環境で異なる可能性あり旨を注記。
   let message = `「${char}」を入力するには、JIS 配列上で対応するキーを利用してください。\n`;
   message += `例：Shift + 数字キー 等。`;
   alert(message);

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>タイピング練習アプリ</title>
   <link rel="stylesheet" href="styles.css" />
-  <!-- Markdown 処理は不要。生テキストとして流し込むため、特別なライブラリは使いません -->
 </head>
 <body>
   <div class="container">
@@ -18,16 +17,20 @@
     <section class="selector">
       <label for="file-select">練習テキストを選択：</label>
       <select id="file-select" disabled>
-        <!-- files.json 読み込み後に JS で埋め込む -->
+        <!-- JS で埋め込まれる -->
       </select>
       <button id="start-btn" disabled>スタート</button>
     </section>
 
     <!-- タイピングエリア -->
     <section class="typing-area">
-      <div id="text-display" class="text-display">
-        <!-- ここに練習テキストが灰色で表示され、入力の進捗に応じて色が変化 -->
-      </div>
+      <!-- 1) 入力プレビュー用領域 -->
+      <div id="input-preview" class="input-preview"></div>
+
+      <!-- 2) 未入力文字表示用（灰色） -->
+      <div id="text-display" class="text-display"></div>
+
+      <!-- 3) 実際にキー入力を受け取る透明テキストエリア -->
       <div class="input-wrapper">
         <textarea
           id="text-input"
