@@ -17,29 +17,24 @@
     <section class="selector">
       <label for="file-select">練習テキストを選択：</label>
       <select id="file-select" disabled>
-        <!-- JS で埋め込まれる -->
+        <!-- JS がここに option を追加 -->
       </select>
       <button id="start-btn" disabled>スタート</button>
     </section>
 
     <!-- タイピングエリア -->
     <section class="typing-area">
-      <!-- 1) 入力プレビュー用領域 -->
-      <div id="input-preview" class="input-preview"></div>
-
-      <!-- 2) 未入力文字表示用（灰色） -->
+      <!-- 背景に練習テキストを表示する領域 -->
       <div id="text-display" class="text-display"></div>
 
-      <!-- 3) 実際にキー入力を受け取る透明テキストエリア -->
-      <div class="input-wrapper">
-        <textarea
-          id="text-input"
-          class="text-input"
-          placeholder="ここをクリックしてキー入力してください"
-          disabled
-          spellcheck="false"
-        ></textarea>
-      </div>
+      <!-- キー入力を受け取る透明テキストエリア -->
+      <textarea
+        id="text-input"
+        class="text-input"
+        placeholder="ここをクリックしてキー入力してください"
+        disabled
+        spellcheck="false"
+      ></textarea>
     </section>
 
     <!-- 結果表示エリア -->

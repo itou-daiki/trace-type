@@ -5,12 +5,11 @@ let startTime = null;       // 開始時刻（Date オブジェクト）
 let timerInterval = null;   // タイマー更新用 interval ID
 
 // DOM 要素を取得
-const fileSelect   = document.getElementById("file-select");
-const startBtn     = document.getElementById("start-btn");
-const inputPreview = document.getElementById("input-preview");
-const textDisplay  = document.getElementById("text-display");
-const textInput    = document.getElementById("text-input");
-const timerSpan    = document.getElementById("timer");
+const fileSelect  = document.getElementById("file-select");
+const startBtn    = document.getElementById("start-btn");
+const textDisplay = document.getElementById("text-display");
+const textInput   = document.getElementById("text-input");
+const timerSpan   = document.getElementById("timer");
 
 // ===== 初期化処理 ===== //
 window.addEventListener("DOMContentLoaded", () => {
@@ -21,12 +20,12 @@ window.addEventListener("DOMContentLoaded", () => {
 // ---- 練習ファイル一覧を読み込む ---- //
 function loadFileList() {
   fetch("Practice/files.json")
-    .then((res) => {
+    .then(res => {
       if (!res.ok) throw new Error("files.json の読み込みに失敗しました");
       return res.json();
     })
-    .then((fileList) => {
-      fileList.forEach((filename) => {
+    .then(fileList => {
+      fileList.forEach(filename => {
         const option = document.createElement("option");
         option.value = filename;
         option.textContent = filename;
@@ -35,7 +34,7 @@ function loadFileList() {
       fileSelect.disabled = false;
       startBtn.disabled = false;
     })
-    .catch((err) => {
+    .catch(err => {
       console.error(err);
       alert("練習ファイル一覧の読み込みに失敗しました。");
     });
@@ -51,123 +50,129 @@ startBtn.addEventListener("click", () => {
   fetchPracticeText(selectedFile);
 });
 
-// ---- 選択された md ファイルをフェッチしてプレーンテキストを取得 ---- //
+// ---- 選択した md ファイルを取得してプレーンテキスト化 ---- //
 function fetchPracticeText(filename) {
   fetch(`Practice/${filename}`)
-    .then((res) => {
+    .then(res => {
       if (!res.ok) throw new Error("md ファイルの読み込みに失敗しました");
       return res.text();
     })
-    .then((markdown) => {
+    .then(markdown => {
       practiceText = markdown.replace(/\r\n/g, "\n");
       resetTypingArea();
-      renderDisplay();
+      renderDisplay();   // 初期表示（全て灰色）
       activateTyping();
     })
-    .catch((err) => {
+    .catch(err => {
       console.error(err);
       alert("練習テキストの読み込みに失敗しました。");
     });
 }
 
-// ---- タイピングエリアを初期状態に戻す ---- //
+// ---- タイピングエリアを初期化 ---- //
 function resetTypingArea() {
   userInput = "";
   clearInterval(timerInterval);
   timerSpan.textContent = "0.00";
   startTime = null;
-  inputPreview.innerHTML = "";
-  textDisplay.innerHTML = "";
+  textDisplay.innerHTML = "";   // 背景テキスト領域をクリア
   textInput.value = "";
   textInput.disabled = false;
   textInput.focus();
 }
 
-// ---- 練習テキストの表示を更新する ---- //
+// ---- 背景テキスト表示を更新 ---- //
+// ここで「入力済み部分は青／赤」「未入力部分は灰色」で描画し、
+// 未入力部分先頭（= userInput.length の文字）が常に表示領域の最上部に来るようスクロールする。
 function renderDisplay() {
-  // --- 1) プレビュー表示: userInput 全体を一行にまとめて表示（改行は空文字に置換） --- //
-  const previewFragment = document.createDocumentFragment();
-  for (let i = 0; i < userInput.length; i++) {
-    const span = document.createElement("span");
-    // プレビュー上では改行をすべて空文字にすることで「一行のみ」表示
-    const inputChar = userInput[i] === "\n" ? "" : userInput[i];
-    // 正誤判定（改行をスキップするときは練習テキスト上の同じ文字を比較）
-    const compareChar = practiceText[i];
-    if (userInput[i] === compareChar) {
-      span.style.color = "#3498db"; // 正解なら「青」
-    } else {
-      span.style.color = "#e74c3c"; // 間違いなら「赤」
-    }
-    span.textContent = inputChar;
-    previewFragment.appendChild(span);
-  }
-  inputPreview.innerHTML = "";
-  inputPreview.appendChild(previewFragment);
+  const fragment = document.createDocumentFragment();
 
-  // --- 2) 残りの未入力文字を灰色で表示 --- //
-  const remainingText = practiceText.slice(userInput.length);
-  const displayFragment = document.createDocumentFragment();
-  for (let i = 0; i < remainingText.length; i++) {
+  // 文字ごとに span を作成し、色を付けていく
+  for (let i = 0; i < practiceText.length; i++) {
     const span = document.createElement("span");
-    const char = remainingText[i];
-    span.style.color = "#999"; // 未入力は灰色
+    const char = practiceText[i];
+
+    if (i < userInput.length) {
+      // 入力済み文字
+      if (userInput[i] === char) {
+        span.style.color = "#3498db"; // 正しく入力 → 青
+      } else {
+        span.style.color = "#e74c3c"; // 誤入力 → 赤
+      }
+    } else {
+      // 未入力文字
+      span.style.color = "#999";     // 灰色
+    }
+
+    // 改行は <br/> に置換
     if (char === "\n") {
       span.innerHTML = "<br/>";
     } else {
       span.textContent = char;
     }
-    displayFragment.appendChild(span);
+
+    fragment.appendChild(span);
   }
+
+  // 一度クリアしてから新しいノードを追加
   textDisplay.innerHTML = "";
-  textDisplay.appendChild(displayFragment);
+  textDisplay.appendChild(fragment);
+
+  // 「未入力部分の先頭」を最上部にスクロール
+  // userInput.length が全文字数と等しければ、すでに完了しているのでスクロール不要
+  if (userInput.length < practiceText.length) {
+    // childNodes のうち、index=userInput.length の要素へスクロール
+    const targetNode = textDisplay.childNodes[userInput.length];
+    if (targetNode) {
+      // targetNode が改行（<br/>）の場合は、その次の文字でも可
+      targetNode.scrollIntoView({ block: "start" });
+    }
+  }
 }
 
-// ---- 貼り付け・ドロップを無効化 ---- //
+// ---- 貼り付け・ドロップを禁止 ---- //
 function disablePasteAndDrop() {
-  // paste イベントを防ぐ
-  textInput.addEventListener("paste", (e) => {
-    e.preventDefault();
-  });
-  // drop イベントを防ぐ
-  textInput.addEventListener("drop", (e) => {
-    e.preventDefault();
-  });
+  textInput.addEventListener("paste", e => e.preventDefault());
+  textInput.addEventListener("drop", e => e.preventDefault());
 }
 
-// ---- タイピング可能にし、キー入力をハンドル ---- //
+// ---- キー入力を受け付け、タイマーを動かす ---- //
 function activateTyping() {
-  // スタート時刻を記録
+  // 開始時刻を記録
   startTime = Date.now();
-  // 100ms ごとにタイマー更新
+  // 100ms ごとにタイマーを更新
   timerInterval = setInterval(updateTimer, 100);
 
-  // テキストボックス（透明）に入力があるたびに処理
+  // 入力イベントを監視
   textInput.addEventListener("input", onUserInput);
-  // 記号入力サポートのため keydown も監視
   textInput.addEventListener("keydown", onKeyDown);
 }
 
-// ---- ユーザーの入力を受け取る ---- //
-function onUserInput(e) {
+// ---- ユーザーの入力を反映 ---- //
+function onUserInput() {
   const val = textInput.value;
-  // 最大文字数を超えないように調整
+
+  // 文字数が練習テキストを超えないよう切り詰め
   if (val.length > practiceText.length) {
     textInput.value = val.slice(0, practiceText.length);
     return;
   }
+
   userInput = val;
   renderDisplay();
 
-  // 完了判定
+  // すべて入力し終えたら完了処理
   if (userInput.length === practiceText.length) {
     finishTyping();
   }
 }
 
-// ---- キー押下時（記号入力サポート） ---- //
+// ---- キー押下時に、記号入力をサポート（「。」と「、」以外はブロック） ---- //
 function onKeyDown(e) {
   const allowedPunctuations = ["、", "。"];
   const key = e.key;
+
+  // key が一文字で英数・空白でないもの＝記号とみなす
   if (key.length === 1 && !/\w|\s/.test(key)) {
     if (!allowedPunctuations.includes(key)) {
       e.preventDefault();
@@ -177,7 +182,7 @@ function onKeyDown(e) {
   }
 }
 
-// ---- 記号入力サポート用のポップアップ表示 ---- //
+// ---- 記号入力サポート用のポップアップ ---- //
 function showPunctuationHelp(char) {
   let message = `「${char}」を入力するには、JIS 配列上で対応するキーを利用してください。\n`;
   message += `例：Shift + 数字キー 等。`;
@@ -192,7 +197,7 @@ function finishTyping() {
   timerSpan.textContent = elapsed.toFixed(2);
 }
 
-// ---- タイマー表示を更新 ---- //
+// ---- タイマー表示更新 ---- //
 function updateTimer() {
   const elapsed = (Date.now() - startTime) / 1000;
   timerSpan.textContent = elapsed.toFixed(2);
