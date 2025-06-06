@@ -60,23 +60,27 @@ header h1 {
   margin-bottom: 16px;
 }
 
-/* 背景（＆手前）のテキスト表示用 */
+/* 背景（＆手前）に表示されるテキスト領域 */
 .text-display {
   position: absolute;
   top: 16px;
   left: 16px;
   right: 16px;
   bottom: 16px;
+
   white-space: pre-wrap;    /* 改行をそのまま反映 */
   word-break: break-all;
   font-family: "Courier New", monospace;
   font-size: 1.1rem;
   line-height: 1.6;
-  color: #999;              /* 初期はすべて灰色（未入力） */
-  overflow-y: auto;         /* 必要に応じて縦スクロール */
+
+  color: #999;              /* 初期は全体が灰色 */
+  overflow-y: auto;         /* 縦スクロールを許可 */
+
   padding: 4px 8px;
-  z-index: 2;               /* 手前に表示 */
-  pointer-events: none;     /* クリックを透過して背面の textarea に渡す */
+
+  z-index: 10;              /* textarea よりも常に手前 */
+  pointer-events: none;     /* 操作を textarea に透過 */
 }
 
 /* 入力用テキストエリア（透明） */
@@ -86,18 +90,22 @@ header h1 {
   left: 16px;
   right: 16px;
   bottom: 16px;
+
   border: none;
   resize: none;
   background: transparent;
-  color: transparent;       /* 入力文字は透明（実際に見せるのは text-display の span で色付け） */
-  caret-color: #333;        /* カーソルは黒で表示 */
+  color: transparent;       /* 入力文字そのものは表示せず、.text-display 上で色を付ける */
+  caret-color: #333;        /* カーソルのみ黒で表示 */
+
   font-family: "Courier New", monospace;
   font-size: 1.1rem;
   line-height: 1.6;
+
   outline: none;
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  z-index: 1;               /* 背面に配置 */
+
+  z-index: 5;               /* .text-display の後ろに配置 */
 }
 
 /* 結果エリア */
