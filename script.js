@@ -5,16 +5,17 @@ let startTime = null;       // 開始時刻（Date オブジェクト）
 let timerInterval = null;   // タイマー更新用 interval ID
 
 // DOM 要素を取得
-const fileSelect = document.getElementById("file-select");
-const startBtn = document.getElementById("start-btn");
+const fileSelect   = document.getElementById("file-select");
+const startBtn     = document.getElementById("start-btn");
 const inputPreview = document.getElementById("input-preview");
-const textDisplay = document.getElementById("text-display");
-const textInput = document.getElementById("text-input");
-const timerSpan = document.getElementById("timer");
+const textDisplay  = document.getElementById("text-display");
+const textInput    = document.getElementById("text-input");
+const timerSpan    = document.getElementById("timer");
 
 // ===== 初期化処理 ===== //
 window.addEventListener("DOMContentLoaded", () => {
   loadFileList();
+  disablePasteAndDrop();
 });
 
 // ---- 練習ファイル一覧を読み込む ---- //
@@ -75,7 +76,7 @@ function resetTypingArea() {
   clearInterval(timerInterval);
   timerSpan.textContent = "0.00";
   startTime = null;
-  inputPreview.innerHTML = ""; 
+  inputPreview.innerHTML = "";
   textDisplay.innerHTML = "";
   textInput.value = "";
   textInput.disabled = false;
@@ -84,27 +85,26 @@ function resetTypingArea() {
 
 // ---- 練習テキストの表示を更新する ---- //
 function renderDisplay() {
-  // 1) userInput（入力済み文字）をプレビュー領域に描画
+  // --- 1) プレビュー表示: userInput 全体を一行にまとめて表示（改行は空文字に置換） --- //
   const previewFragment = document.createDocumentFragment();
   for (let i = 0; i < userInput.length; i++) {
     const span = document.createElement("span");
-    const char = practiceText[i];
-    if (userInput[i] === char) {
-      span.style.color = "#333"; // 正しく入力
+    // プレビュー上では改行をすべて空文字にすることで「一行のみ」表示
+    const inputChar = userInput[i] === "\n" ? "" : userInput[i];
+    // 正誤判定（改行をスキップするときは練習テキスト上の同じ文字を比較）
+    const compareChar = practiceText[i];
+    if (userInput[i] === compareChar) {
+      span.style.color = "#3498db"; // 正解なら「青」
     } else {
-      span.style.color = "#e74c3c"; // 間違って入力
+      span.style.color = "#e74c3c"; // 間違いなら「赤」
     }
-    if (userInput[i] === "\n") {
-      span.innerHTML = "<br/>";
-    } else {
-      span.textContent = userInput[i];
-    }
+    span.textContent = inputChar;
     previewFragment.appendChild(span);
   }
   inputPreview.innerHTML = "";
   inputPreview.appendChild(previewFragment);
 
-  // 2) practiceText の残り部分（未入力分）を text-display に灰色で表示
+  // --- 2) 残りの未入力文字を灰色で表示 --- //
   const remainingText = practiceText.slice(userInput.length);
   const displayFragment = document.createDocumentFragment();
   for (let i = 0; i < remainingText.length; i++) {
@@ -120,6 +120,18 @@ function renderDisplay() {
   }
   textDisplay.innerHTML = "";
   textDisplay.appendChild(displayFragment);
+}
+
+// ---- 貼り付け・ドロップを無効化 ---- //
+function disablePasteAndDrop() {
+  // paste イベントを防ぐ
+  textInput.addEventListener("paste", (e) => {
+    e.preventDefault();
+  });
+  // drop イベントを防ぐ
+  textInput.addEventListener("drop", (e) => {
+    e.preventDefault();
+  });
 }
 
 // ---- タイピング可能にし、キー入力をハンドル ---- //
