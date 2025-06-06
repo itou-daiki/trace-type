@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>タイピング練習アプリ</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Markdown 処理は不要。生テキストとして流し込むため、特別なライブラリは使いません -->
+</head>
+<body>
+  <div class="container">
+    <!-- ヘッダー -->
+    <header>
+      <h1>文章トレース型タイピング練習</h1>
+    </header>
+
+    <!-- ファイル選択エリア -->
+    <section class="selector">
+      <label for="file-select">練習テキストを選択：</label>
+      <select id="file-select" disabled>
+        <!-- files.json 読み込み後に JS で埋め込む -->
+      </select>
+      <button id="start-btn" disabled>スタート</button>
+    </section>
+
+    <!-- タイピングエリア -->
+    <section class="typing-area">
+      <div id="text-display" class="text-display">
+        <!-- ここに練習テキストが灰色で表示され、入力の進捗に応じて色が変化 -->
+      </div>
+      <div class="input-wrapper">
+        <textarea
+          id="text-input"
+          class="text-input"
+          placeholder="ここをクリックしてキー入力してください"
+          disabled
+          spellcheck="false"
+        ></textarea>
+      </div>
+    </section>
+
+    <!-- 結果表示エリア -->
+    <section class="result-area">
+      <p>経過時間：<span id="timer">0.00</span> 秒</p>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

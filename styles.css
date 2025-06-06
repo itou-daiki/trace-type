@@ -1,0 +1,103 @@
+/* リセット＆ベース */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: "Noto Sans JP", sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* コンテナ全体 */
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+/* ヘッダー */
+header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+header h1 {
+  font-size: 2rem;
+  color: #444;
+}
+
+/* ファイル選択エリア */
+.selector {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.selector label {
+  font-weight: bold;
+}
+.selector select,
+.selector button {
+  padding: 6px 12px;
+  font-size: 1rem;
+}
+.selector button {
+  cursor: pointer;
+}
+
+/* タイピングエリア */
+.typing-area {
+  position: relative;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  padding: 16px;
+  min-height: 240px;
+  overflow: auto;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+/* 練習テキスト表示用 */
+.text-display {
+  white-space: pre-wrap; /* 改行をそのまま反映 */
+  word-break: break-all;
+  font-family: "Courier New", monospace;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #999; /* 未入力部分はグレー */
+}
+
+/* 入力用テキストエリア */
+.input-wrapper {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+}
+.text-input {
+  /* テキストの色を透明にして、下層の text-display が見えるようにする */
+  position: absolute;
+  width: calc(100% - 32px);
+  height: calc(100% - 32px);
+  border: none;
+  resize: none;
+  background: transparent;
+  color: transparent;
+  caret-color: #333; /* キャレット（カーソル）の色を指定 */
+  font-family: "Courier New", monospace;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  outline: none;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+/* 結果エリア */
+.result-area {
+  text-align: right;
+  font-size: 1rem;
+}
