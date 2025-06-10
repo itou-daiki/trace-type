@@ -95,6 +95,7 @@ function resetTypingArea() {
 // 現在入力中の文字をハイライトし、入力文字をトレース文字の上に重ねて表示する。
 function renderDisplay() {
   const fragment = document.createDocumentFragment();
+  const spanElements = []; // span要素を追跡するための配列
 
   // 文字ごとに span を作成し、色を付けていく
   for (let i = 0; i < practiceText.length; i++) {
@@ -124,13 +125,23 @@ function renderDisplay() {
       span.style.opacity = "0.6";
     }
 
-    // 改行は <br/> に置換
+    // 改行文字の処理
     if (char === "\n") {
       span.innerHTML = "<br/>";
+      // 改行文字の場合、視覚的に見えるように小さなマーカーを追加
+      span.style.position = "relative";
+      if (i === userInput.length) {
+        // 現在入力中の改行文字の場合、改行後の位置にカーソルを表示
+        span.style.display = "block";
+        span.style.height = "1.6em";
+        span.style.width = "2px";
+        span.innerHTML = "<br/>";
+      }
     } else {
       span.textContent = char;
     }
 
+    spanElements.push(span);
     fragment.appendChild(span);
   }
 
@@ -141,11 +152,11 @@ function renderDisplay() {
   // 「現在入力中の文字」を画面中央にスクロール
   // userInput.length が全文字数と等しければ、すでに完了しているのでスクロール不要
   if (userInput.length < practiceText.length) {
-    // childNodes のうち、index=userInput.length の要素へスクロール
-    const targetNode = textDisplay.childNodes[userInput.length];
-    if (targetNode) {
+    // spanElements配列から正しい要素を取得
+    const targetSpan = spanElements[userInput.length];
+    if (targetSpan) {
       // 画面中央に表示するようにスクロール
-      targetNode.scrollIntoView({ 
+      targetSpan.scrollIntoView({ 
         block: "center", 
         behavior: "smooth" 
       });
