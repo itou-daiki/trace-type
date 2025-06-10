@@ -3,6 +3,7 @@ let practiceText = "";      // 練習テキスト（プレーンテキスト）
 let userInput = "";         // ユーザーの入力履歴
 let startTime = null;       // 開始時刻（Date オブジェクト）
 let timerInterval = null;   // タイマー更新用 interval ID
+let isComposing = false;    // IME変換中かどうかのフラグ
 
 // DOM 要素を取得
 const fileSelect  = document.getElementById("file-select");
@@ -215,10 +216,20 @@ function activateTyping() {
   // 入力イベントを監視
   textInput.addEventListener("input", onUserInput);
   textInput.addEventListener("keydown", onKeyDown);
+  
+  // IME変換イベントを監視
+  textInput.addEventListener("compositionstart", onCompositionStart);
+  textInput.addEventListener("compositionupdate", onCompositionUpdate);
+  textInput.addEventListener("compositionend", onCompositionEnd);
 }
 
 // ---- ユーザーの入力を反映 ---- //
 function onUserInput() {
+  // IME変換中は処理をスキップ
+  if (isComposing) {
+    return;
+  }
+
   const val = textInput.value;
 
   // 文字数が練習テキストを超えないよう切り詰め
@@ -238,6 +249,25 @@ function onUserInput() {
   if (userInput.length === practiceText.length) {
     finishTyping();
   }
+}
+
+// ---- IME変換開始時の処理 ---- //
+function onCompositionStart(e) {
+  isComposing = true;
+}
+
+// ---- IME変換更新時の処理 ---- //
+function onCompositionUpdate(e) {
+  // 変換中は何もしない
+}
+
+// ---- IME変換終了時の処理 ---- //
+function onCompositionEnd(e) {
+  isComposing = false;
+  // 変換が確定したので、入力処理を実行
+  setTimeout(() => {
+    onUserInput();
+  }, 0);
 }
 
 // ---- キー押下時に、記号入力をサポート（「。」と「、」以外はブロック） ---- //
