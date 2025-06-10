@@ -6,6 +6,58 @@ let timerInterval = null;   // タイマー更新用 interval ID
 let isComposing = false;    // IME変換中かどうかのフラグ
 let mouseClickCount = 0;    // マウスクリック回数
 
+// ---- JIS配列キーマッピング ---- //
+const jisKeyMap = {
+  // 英字（小文字）
+  'a': ['A'], 'b': ['B'], 'c': ['C'], 'd': ['D'], 'e': ['E'], 'f': ['F'], 'g': ['G'], 'h': ['H'],
+  'i': ['I'], 'j': ['J'], 'k': ['K'], 'l': ['L'], 'm': ['M'], 'n': ['N'], 'o': ['O'], 'p': ['P'],
+  'q': ['Q'], 'r': ['R'], 's': ['S'], 't': ['T'], 'u': ['U'], 'v': ['V'], 'w': ['W'], 'x': ['X'],
+  'y': ['Y'], 'z': ['Z'],
+  
+  // 英字（大文字）
+  'A': ['Shift', 'A'], 'B': ['Shift', 'B'], 'C': ['Shift', 'C'], 'D': ['Shift', 'D'], 'E': ['Shift', 'E'],
+  'F': ['Shift', 'F'], 'G': ['Shift', 'G'], 'H': ['Shift', 'H'], 'I': ['Shift', 'I'], 'J': ['Shift', 'J'],
+  'K': ['Shift', 'K'], 'L': ['Shift', 'L'], 'M': ['Shift', 'M'], 'N': ['Shift', 'N'], 'O': ['Shift', 'O'],
+  'P': ['Shift', 'P'], 'Q': ['Shift', 'Q'], 'R': ['Shift', 'R'], 'S': ['Shift', 'S'], 'T': ['Shift', 'T'],
+  'U': ['Shift', 'U'], 'V': ['Shift', 'V'], 'W': ['Shift', 'W'], 'X': ['Shift', 'X'], 'Y': ['Shift', 'Y'],
+  'Z': ['Shift', 'Z'],
+  
+  // 数字
+  '0': ['0'], '1': ['1'], '2': ['2'], '3': ['3'], '4': ['4'], '5': ['5'], '6': ['6'], '7': ['7'], '8': ['8'], '9': ['9'],
+  
+  // 記号（Shiftなし）
+  '-': ['-'], '^': ['^'], '\\': ['\\'], '@': ['@'], '[': ['['], ';': [';'], ':': [':'], ']': [']'], ',': [','], '.': ['.'], '/': ['/'], '\\': ['\\'],
+  
+  // 記号（Shiftあり）
+  '!': ['Shift', '1'], '"': ['Shift', '2'], '#': ['Shift', '3'], '$': ['Shift', '4'], '%': ['Shift', '5'],
+  '&': ['Shift', '6'], "'": ['Shift', '7'], '(': ['Shift', '8'], ')': ['Shift', '9'], '=': ['Shift', '-'],
+  '~': ['Shift', '^'], '|': ['Shift', '\\'], '`': ['Shift', '@'], '{': ['Shift', '['], '+': ['Shift', ';'],
+  '*': ['Shift', ':'], '}': ['Shift', ']'], '<': ['Shift', ','], '>': ['Shift', '.'], '?': ['Shift', '/'],
+  '_': ['Shift', '\\'],
+  
+  // 特殊文字
+  ' ': ['Space'], '\n': ['Enter'], '\t': ['Tab'],
+  
+  // 日本語文字（ひらがな・カタカナ・漢字は一般的にIME入力）
+  'あ': ['あ'], 'い': ['い'], 'う': ['う'], 'え': ['え'], 'お': ['お'],
+  'か': ['か'], 'き': ['き'], 'く': ['く'], 'け': ['け'], 'こ': ['こ'],
+  'が': ['が'], 'ぎ': ['ぎ'], 'ぐ': ['ぐ'], 'げ': ['げ'], 'ご': ['ご'],
+  'さ': ['さ'], 'し': ['し'], 'す': ['す'], 'せ': ['せ'], 'そ': ['そ'],
+  'ざ': ['ざ'], 'じ': ['じ'], 'ず': ['ず'], 'ぜ': ['ぜ'], 'ぞ': ['ぞ'],
+  'た': ['た'], 'ち': ['ち'], 'つ': ['つ'], 'て': ['て'], 'と': ['と'],
+  'だ': ['だ'], 'ぢ': ['ぢ'], 'づ': ['づ'], 'で': ['で'], 'ど': ['ど'],
+  'な': ['な'], 'に': ['に'], 'ぬ': ['ぬ'], 'ね': ['ね'], 'の': ['の'],
+  'は': ['は'], 'ひ': ['ひ'], 'ふ': ['ふ'], 'へ': ['へ'], 'ほ': ['ほ'],
+  'ば': ['ば'], 'び': ['び'], 'ぶ': ['ぶ'], 'べ': ['べ'], 'ぼ': ['ぼ'],
+  'ぱ': ['ぱ'], 'ぴ': ['ぴ'], 'ぷ': ['ぷ'], 'ぺ': ['ぺ'], 'ぽ': ['ぽ'],
+  'ま': ['ま'], 'み': ['み'], 'む': ['む'], 'め': ['め'], 'も': ['も'],
+  'や': ['や'], 'ゆ': ['ゆ'], 'よ': ['よ'],
+  'ら': ['ら'], 'り': ['り'], 'る': ['る'], 'れ': ['れ'], 'ろ': ['ろ'],
+  'わ': ['わ'], 'ゐ': ['ゐ'], 'ゑ': ['ゑ'], 'を': ['を'], 'ん': ['ん'],
+  'ー': ['ー'], '、': ['、'], '。': ['。'], '「': ['「'], '」': ['」'],
+  '＜': ['＜'], '＞': ['＞']
+};
+
 // DOM 要素を取得
 const fileSelect  = document.getElementById("file-select");
 const startBtn    = document.getElementById("start-btn");
@@ -13,6 +65,7 @@ const textDisplay = document.getElementById("text-display");
 const textInput   = document.getElementById("text-input");
 const timerSpan   = document.getElementById("timer");
 const mouseClicksSpan = document.getElementById("mouse-clicks");
+const keyDisplay = document.getElementById("key-display");
 
 // ===== 初期化処理 ===== //
 window.addEventListener("DOMContentLoaded", () => {
@@ -148,6 +201,9 @@ function renderDisplay() {
   // 一度クリアしてから新しいノードを追加
   textDisplay.innerHTML = "";
   textDisplay.appendChild(fragment);
+
+  // キー表示を更新
+  updateKeyDisplay();
 
   // 「現在入力中の文字」を画面中央にスクロール
   // userInput.length が全文字数と等しければ、すでに完了しているのでスクロール不要
@@ -288,5 +344,41 @@ function onMouseClick(e) {
 function updateMouseClickDisplay() {
   if (mouseClicksSpan) {
     mouseClicksSpan.textContent = mouseClickCount;
+  }
+}
+
+// ---- キー表示を更新 ---- //
+function updateKeyDisplay() {
+  if (!keyDisplay) return;
+  
+  // 練習が完了している場合
+  if (userInput.length >= practiceText.length) {
+    keyDisplay.innerHTML = '<span style="color: #28a745; font-weight: bold;">完了！</span>';
+    return;
+  }
+  
+  // 現在入力すべき文字を取得
+  const currentChar = practiceText[userInput.length];
+  
+  // キーマッピングを取得
+  const keyMapping = jisKeyMap[currentChar];
+  
+  if (!keyMapping) {
+    // マッピングが見つからない場合
+    keyDisplay.innerHTML = `<span style="color: #dc3545;">「${currentChar}」</span>`;
+    return;
+  }
+  
+  // キーの組み合わせを表示
+  const keyElements = keyMapping.map(key => {
+    return `<span class="key-button">${key}</span>`;
+  });
+  
+  if (keyElements.length === 1) {
+    // 単一キーの場合
+    keyDisplay.innerHTML = keyElements[0];
+  } else {
+    // 複数キーの組み合わせの場合（例：Shift + R）
+    keyDisplay.innerHTML = keyElements.join('<span class="key-plus">+</span>');
   }
 }
