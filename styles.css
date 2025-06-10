@@ -86,38 +86,6 @@ header h1 {
   cursor: pointer;
 }
 
-/* 現在入力中の行表示エリア */
-.current-line-area {
-  background-color: #f8f9fa;
-  border: 2px solid #dee2e6;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 16px;
-  min-height: 60px;
-}
-
-.current-line-label {
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: #495057;
-  margin-bottom: 8px;
-}
-
-.current-line-display {
-  font-family: "Courier New", monospace;
-  font-size: 1.2rem;
-  line-height: 1.8;
-  background-color: #ffffff;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  padding: 8px 12px;
-  min-height: 40px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
-  overflow-x: auto;
-  overflow-y: auto;
-}
 
 /* タイピングエリア全体 */
 .typing-area {

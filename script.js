@@ -12,7 +12,6 @@ const startBtn    = document.getElementById("start-btn");
 const textDisplay = document.getElementById("text-display");
 const textInput   = document.getElementById("text-input");
 const timerSpan   = document.getElementById("timer");
-const currentLineDisplay = document.getElementById("current-line-display");
 const mouseClicksSpan = document.getElementById("mouse-clicks");
 
 // ===== 初期化処理 ===== //
@@ -90,62 +89,6 @@ function resetTypingArea() {
   updateMouseClickDisplay();
 }
 
-// ---- 現在入力中の行を取得 ---- //
-function getCurrentLine() {
-  const currentPos = userInput.length;
-  const textUpToCursor = practiceText.substring(0, currentPos);
-  const remainingText = practiceText.substring(currentPos);
-  
-  // 現在位置から前の改行を探す
-  const lastNewlineIndex = textUpToCursor.lastIndexOf('\n');
-  const lineStart = lastNewlineIndex === -1 ? 0 : lastNewlineIndex + 1;
-  
-  // 現在位置から次の改行を探す
-  const nextNewlineIndex = remainingText.indexOf('\n');
-  const lineEnd = nextNewlineIndex === -1 ? practiceText.length : currentPos + nextNewlineIndex;
-  
-  return {
-    text: practiceText.substring(lineStart, lineEnd),
-    start: lineStart,
-    end: lineEnd,
-    cursorInLine: currentPos - lineStart
-  };
-}
-
-// ---- 現在入力中の行を表示 ---- //
-function renderCurrentLine() {
-  const currentLine = getCurrentLine();
-  const fragment = document.createDocumentFragment();
-  
-  for (let i = 0; i < currentLine.text.length; i++) {
-    const span = document.createElement("span");
-    const char = currentLine.text[i];
-    const globalIndex = currentLine.start + i;
-    
-    if (globalIndex < userInput.length) {
-      // 入力済み文字
-      if (userInput[globalIndex] === char) {
-        span.className = "typed-correct";
-      } else {
-        span.className = "typed-incorrect";
-      }
-    } else if (globalIndex === userInput.length) {
-      // 現在入力中の文字
-      span.className = "current-char";
-      span.style.color = "#333";
-      span.style.fontWeight = "bold";
-    } else {
-      // 未入力文字
-      span.style.color = "#666";
-    }
-    
-    span.textContent = char;
-    fragment.appendChild(span);
-  }
-  
-  currentLineDisplay.innerHTML = "";
-  currentLineDisplay.appendChild(fragment);
-}
 
 // ---- 背景テキスト表示を更新 ---- //
 // ここで「入力済み部分は緑／赤」「未入力部分は灰色」で描画し、
@@ -194,9 +137,6 @@ function renderDisplay() {
   // 一度クリアしてから新しいノードを追加
   textDisplay.innerHTML = "";
   textDisplay.appendChild(fragment);
-  
-  // 現在入力中の行も更新
-  renderCurrentLine();
 
   // 「現在入力中の文字」を画面中央にスクロール
   // userInput.length が全文字数と等しければ、すでに完了しているのでスクロール不要
