@@ -28,6 +28,44 @@ header h1 {
   color: #444;
 }
 
+/* 指示メッセージエリア */
+.instructions {
+  background-color: #e3f2fd;
+  border: 2px solid #2196f3;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.instruction-item {
+  background-color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+  text-align: center;
+  min-width: 200px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+  .instructions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .instruction-item {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
 /* ファイル選択エリア */
 .selector {
   display: flex;

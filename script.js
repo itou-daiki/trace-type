@@ -4,6 +4,7 @@ let userInput = "";         // ユーザーの入力履歴
 let startTime = null;       // 開始時刻（Date オブジェクト）
 let timerInterval = null;   // タイマー更新用 interval ID
 let isComposing = false;    // IME変換中かどうかのフラグ
+let mouseClickCount = 0;    // マウスクリック回数
 
 // DOM 要素を取得
 const fileSelect  = document.getElementById("file-select");
@@ -12,11 +13,13 @@ const textDisplay = document.getElementById("text-display");
 const textInput   = document.getElementById("text-input");
 const timerSpan   = document.getElementById("timer");
 const currentLineDisplay = document.getElementById("current-line-display");
+const mouseClicksSpan = document.getElementById("mouse-clicks");
 
 // ===== 初期化処理 ===== //
 window.addEventListener("DOMContentLoaded", () => {
   loadFileList();
   disablePasteAndDrop();
+  setupMouseClickTracking();
 });
 
 // ---- 練習ファイル一覧を読み込む ---- //
@@ -81,6 +84,10 @@ function resetTypingArea() {
   textInput.value = "";
   textInput.disabled = false;
   textInput.focus();
+  
+  // マウスクリック回数をリセット
+  mouseClickCount = 0;
+  updateMouseClickDisplay();
 }
 
 // ---- 現在入力中の行を取得 ---- //
@@ -311,5 +318,24 @@ function updateTimer() {
   const elapsed = (Date.now() - startTime) / 1000;
   timerSpan.textContent = elapsed.toFixed(2);
 }
-エンター
-ｗ
+
+// ---- マウスクリック監視を設定 ---- //
+function setupMouseClickTracking() {
+  document.addEventListener("click", onMouseClick);
+}
+
+// ---- マウスクリック時の処理 ---- //
+function onMouseClick(e) {
+  // タイピング練習中のみカウント
+  if (startTime && !textInput.disabled) {
+    mouseClickCount++;
+    updateMouseClickDisplay();
+  }
+}
+
+// ---- マウスクリック回数表示を更新 ---- //
+function updateMouseClickDisplay() {
+  if (mouseClicksSpan) {
+    mouseClicksSpan.textContent = mouseClickCount;
+  }
+}
