@@ -141,8 +141,8 @@ function renderCurrentLine() {
 }
 
 // ---- 背景テキスト表示を更新 ---- //
-// ここで「入力済み部分は青／赤」「未入力部分は灰色」で描画し、
-// 現在入力中の文字をハイライトし、未入力部分先頭が常に表示領域の最上部に来るようスクロールする。
+// ここで「入力済み部分は緑／赤」「未入力部分は灰色」で描画し、
+// 現在入力中の文字をハイライトし、入力文字をトレース文字の上に重ねて表示する。
 function renderDisplay() {
   const fragment = document.createDocumentFragment();
 
@@ -155,8 +155,13 @@ function renderDisplay() {
       // 入力済み文字
       if (userInput[i] === char) {
         span.className = "typed-correct";
+        // 正しい入力文字をトレース文字の上に表示
+        span.setAttribute('data-input', userInput[i]);
       } else {
         span.className = "typed-incorrect";
+        // 間違った入力文字をトレース文字の上に表示
+        span.setAttribute('data-input', userInput[i]);
+        span.setAttribute('data-expected', char);
       }
     } else if (i === userInput.length) {
       // 現在入力中の文字（次に入力すべき文字）
@@ -166,6 +171,7 @@ function renderDisplay() {
     } else {
       // 未入力文字
       span.style.color = "#999";
+      span.style.opacity = "0.6";
     }
 
     // 改行は <br/> に置換
