@@ -275,3 +275,5 @@ function updateTimer() {
   const elapsed = (Date.now() - startTime) / 1000;
   timerSpan.textContent = elapsed.toFixed(2);
 }
+エンター
+ｗ
