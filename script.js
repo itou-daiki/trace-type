@@ -223,7 +223,11 @@ function onUserInput() {
 
   // 文字数が練習テキストを超えないよう切り詰め
   if (val.length > practiceText.length) {
+    // イベントリスナーを一時的に削除してから値を設定
+    textInput.removeEventListener("input", onUserInput);
     textInput.value = val.slice(0, practiceText.length);
+    // イベントリスナーを再度追加
+    textInput.addEventListener("input", onUserInput);
     return;
   }
 
