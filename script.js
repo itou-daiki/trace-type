@@ -83,7 +83,7 @@ function resetTypingArea() {
 
 // ---- 背景テキスト表示を更新 ---- //
 // ここで「入力済み部分は青／赤」「未入力部分は灰色」で描画し、
-// 未入力部分先頭（= userInput.length の文字）が常に表示領域の最上部に来るようスクロールする。
+// 現在入力中の文字をハイライトし、未入力部分先頭が常に表示領域の最上部に来るようスクロールする。
 function renderDisplay() {
   const fragment = document.createDocumentFragment();
 
@@ -96,9 +96,17 @@ function renderDisplay() {
       // 入力済み文字
       if (userInput[i] === char) {
         span.style.color = "#3498db"; // 正しく入力 → 青
+        span.style.fontWeight = "bold"; // 入力済みは太字で強調
       } else {
         span.style.color = "#e74c3c"; // 誤入力 → 赤
+        span.style.fontWeight = "bold"; // 誤入力も太字で強調
+        span.style.textDecoration = "underline"; // 誤入力には下線
       }
+    } else if (i === userInput.length) {
+      // 現在入力中の文字（次に入力すべき文字）
+      span.style.color = "#333";     // 黒色で強調
+      span.style.fontWeight = "bold";
+      span.className = "current-char"; // ハイライト用のクラスを追加
     } else {
       // 未入力文字
       span.style.color = "#999";     // 灰色
@@ -118,14 +126,17 @@ function renderDisplay() {
   textDisplay.innerHTML = "";
   textDisplay.appendChild(fragment);
 
-  // 「未入力部分の先頭」を最上部にスクロール
+  // 「現在入力中の文字」を画面中央にスクロール
   // userInput.length が全文字数と等しければ、すでに完了しているのでスクロール不要
   if (userInput.length < practiceText.length) {
     // childNodes のうち、index=userInput.length の要素へスクロール
     const targetNode = textDisplay.childNodes[userInput.length];
     if (targetNode) {
-      // targetNode が改行（<br/>）の場合は、その次の文字でも可
-      targetNode.scrollIntoView({ block: "start" });
+      // 画面中央に表示するようにスクロール
+      targetNode.scrollIntoView({ 
+        block: "center", 
+        behavior: "smooth" 
+      });
     }
   }
 }

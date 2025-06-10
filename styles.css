@@ -95,7 +95,7 @@ header h1 {
   resize: none;
   background: transparent;
   color: transparent;       /* 入力文字そのものは表示せず、.text-display 上で色を付ける */
-  caret-color: #333;        /* カーソルのみ黒で表示 */
+  caret-color: #ff6b35;     /* カーソルをオレンジ色で目立たせる */
 
   font-family: "Courier New", monospace;
   font-size: 1.1rem;
@@ -106,6 +106,26 @@ header h1 {
   overflow-wrap: break-word;
 
   z-index: 5;               /* .text-display の後ろに配置 */
+}
+
+/* 現在入力中の文字をハイライト */
+.current-char {
+  background-color: #fff3cd !important;
+  border: 2px solid #ff6b35 !important;
+  border-radius: 3px !important;
+  animation: blink 1s infinite !important;
+}
+
+/* カーソル点滅アニメーション */
+@keyframes blink {
+  0%, 50% { 
+    background-color: #fff3cd;
+    border-color: #ff6b35;
+  }
+  51%, 100% { 
+    background-color: #ffe8a1;
+    border-color: #ff8c42;
+  }
 }
 
 /* 結果エリア */
