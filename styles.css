@@ -159,7 +159,7 @@ header h1 {
 /* タイピングエリア全体 */
 .typing-area {
   position: relative;
-  border: 1px solid #ccc;
+  border: none;
   background-color: #fff;
   padding: 16px;
   min-height: 240px;
@@ -250,13 +250,13 @@ header h1 {
 
 /* ロックされた文字（正しく入力完了した文字）の強調 */
 .typed-locked {
-  background-color: rgba(25, 135, 84, 0.4) !important;
-  color: #0f5132 !important;
+  background-color: transparent !important;
+  color: #28a745 !important;
   font-weight: bold !important;
-  border: 2px solid rgba(25, 135, 84, 0.7) !important;
-  border-radius: 3px !important;
+  border: none !important;
+  border-radius: 0 !important;
   position: relative !important;
-  box-shadow: 0 1px 3px rgba(25, 135, 84, 0.3) !important;
+  box-shadow: none !important;
 }
 
 /* 入力文字のオーバーレイ効果 - 正しい入力 */

@@ -309,8 +309,8 @@ function onUserInput() {
     textInput.removeEventListener("input", onUserInput);
     textInput.value = userInput;
     textInput.addEventListener("input", onUserInput);
-    // カーソルを正しい位置に移動
-    textInput.setSelectionRange(userInput.length, userInput.length);
+    // カーソルを正しい位置に移動（ロックされた部分の直後）
+    textInput.setSelectionRange(lockedLength, lockedLength);
     return;
   }
 
