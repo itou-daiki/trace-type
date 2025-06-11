@@ -10,8 +10,17 @@
   <div class="container">
     <!-- ヘッダー -->
     <header>
-      <h1>Trace Type</h1>
-      <h3>Created by Dit-Lab.（Daiki ITO）</h3>
+      <div class="header-content">
+        <div class="title-section">
+          <h1>Trace Type</h1>
+          <h3>Created by Dit-Lab.（Daiki ITO）</h3>
+        </div>
+        <div class="header-controls">
+          <button id="dark-mode-toggle" class="theme-toggle" title="ダークモード切り替え">
+            <span class="theme-icon" id="theme-icon">🌙</span>
+          </button>
+        </div>
+      </div>
     </header>
 
     <!-- 指示メッセージエリア -->
@@ -52,10 +61,65 @@
       ></textarea>
     </section>
 
+    <!-- 進捗バー -->
+    <section class="progress-section" id="progress-section" style="display: none;">
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+        <div class="progress-text" id="progress-text">0%</div>
+      </div>
+    </section>
+
     <!-- 結果表示エリア -->
     <section class="result-area">
-      <p>経過時間：<span id="timer">0.00</span> 秒</p>
-      <p>マウスクリック回数：<span id="mouse-clicks">0</span> 回</p>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-label">経過時間:</span>
+          <span class="stat-value" id="timer">0.00</span>
+          <span class="stat-unit">秒</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">リアルタイムWPM:</span>
+          <span class="stat-value" id="real-time-wpm">0</span>
+          <span class="stat-unit">WPM</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">マウスクリック:</span>
+          <span class="stat-value" id="mouse-clicks">0</span>
+          <span class="stat-unit">回</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- スコア表示エリア -->
+    <section class="score-area" id="score-area" style="display: none;">
+      <h2>タイピング結果</h2>
+      <div class="score-grid">
+        <div class="score-item">
+          <div class="score-label">WPM</div>
+          <div class="score-value" id="wpm-score">0</div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">CPM</div>
+          <div class="score-value" id="cpm-score">0</div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">正確率</div>
+          <div class="score-value" id="accuracy-score">0%</div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">総文字数</div>
+          <div class="score-value" id="total-chars">0</div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">正解数</div>
+          <div class="score-value" id="correct-chars">0</div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">誤字数</div>
+          <div class="score-value" id="error-chars">0</div>
+        </div>
+      </div>
+      <button id="retry-btn" class="retry-button">もう一度</button>
     </section>
   </div>
 

@@ -6,6 +6,9 @@ let timerInterval = null;   // タイマー更新用 interval ID
 let isComposing = false;    // IME変換中かどうかのフラグ
 let mouseClickCount = 0;    // マウスクリック回数
 let lockedLength = 0;       // ロックされた文字数（正しく入力完了した文字数）
+let totalKeystrokes = 0;    // 総キーストローク数
+let errorCount = 0;         // エラー回数
+let soundEnabled = true;    // サウンド有効フラグ
 
 // ---- JIS配列キーマッピング ---- //
 const jisKeyMap = {
@@ -101,12 +104,21 @@ const textInput   = document.getElementById("text-input");
 const timerSpan   = document.getElementById("timer");
 const mouseClicksSpan = document.getElementById("mouse-clicks");
 const keyDisplay = document.getElementById("key-display");
+const scoreArea = document.getElementById("score-area");
+const retryBtn = document.getElementById("retry-btn");
+const progressSection = document.getElementById("progress-section");
+const progressBar = document.getElementById("progress-bar");
+const progressText = document.getElementById("progress-text");
+const realTimeWpmSpan = document.getElementById("real-time-wpm");
+const darkModeToggle = document.getElementById("dark-mode-toggle");
+const themeIcon = document.getElementById("theme-icon");
 
 // ===== 初期化処理 ===== //
 window.addEventListener("DOMContentLoaded", () => {
   loadFileList();
   disablePasteAndDrop();
   setupMouseClickTracking();
+  initializeDarkMode();
 });
 
 // ---- 練習ファイル一覧を読み込む ---- //
@@ -165,6 +177,8 @@ function fetchPracticeText(filename) {
 function resetTypingArea() {
   userInput = "";
   lockedLength = 0;
+  totalKeystrokes = 0;
+  errorCount = 0;
   clearInterval(timerInterval);
   timerSpan.textContent = "0.00";
   startTime = null;
@@ -176,6 +190,21 @@ function resetTypingArea() {
   // マウスクリック回数をリセット
   mouseClickCount = 0;
   updateMouseClickDisplay();
+  
+  // スコアエリアを非表示
+  if (scoreArea) {
+    scoreArea.style.display = "none";
+  }
+  
+  // 進捗バーを非表示
+  if (progressSection) {
+    progressSection.style.display = "none";
+  }
+  
+  // リアルタイムWPMをリセット
+  if (realTimeWpmSpan) {
+    realTimeWpmSpan.textContent = "0";
+  }
 }
 
 
@@ -273,10 +302,20 @@ function activateTyping() {
   startTime = Date.now();
   // 100ms ごとにタイマーを更新
   timerInterval = setInterval(updateTimer, 100);
+  
+  // 進捗バーを表示
+  if (progressSection) {
+    progressSection.style.display = "block";
+  }
 
   // 入力イベントを監視
+  textInput.removeEventListener("input", onUserInput); // 重複登録を防止
+  textInput.removeEventListener("keydown", onKeyDown);
   textInput.addEventListener("input", onUserInput);
   textInput.addEventListener("keydown", onKeyDown);
+  
+  // 初期進捗更新
+  updateProgressBar();
   
   // IME変換イベントを監視
   textInput.addEventListener("compositionstart", onCompositionStart);
@@ -292,6 +331,20 @@ function onUserInput() {
   }
 
   const val = textInput.value;
+  
+  // キーストローク数をカウント （入力が増えた場合のみ）
+  if (val.length > userInput.length) {
+    totalKeystrokes++;
+    
+    // エラーをカウントとサウンド再生
+    const newCharIndex = userInput.length;
+    if (newCharIndex < practiceText.length && val[newCharIndex] !== practiceText[newCharIndex]) {
+      errorCount++;
+      playSound('error');
+    } else {
+      playSound('correct');
+    }
+  }
 
   // 文字数が練習テキストを超えないよう切り詰め
   if (val.length > practiceText.length) {
@@ -410,17 +463,15 @@ function onKeyDown(e) {
   if (key.length === 1 && !/\w|\s/.test(key)) {
     if (!allowedPunctuations.includes(key)) {
       e.preventDefault();
-      showPunctuationHelp(key);
+      showPunctuationHelp();
       return;
     }
   }
 }
 
 // ---- 記号入力サポート用のポップアップ ---- //
-function showPunctuationHelp(char) {
-  let message = `「${char}」を入力するには、JIS 配列上で対応するキーを利用してください。\n`;
-  message += `例：Shift + 数字キー 等。`;
-  alert(message);
+function showPunctuationHelp() {
+  // 不要な表示を削除
 }
 
 // ---- タイピング完了時の処理 ---- //
@@ -429,12 +480,21 @@ function finishTyping() {
   textInput.disabled = true;
   const elapsed = (Date.now() - startTime) / 1000;
   timerSpan.textContent = elapsed.toFixed(2);
+  
+  // スコアを計算・表示
+  calculateAndDisplayScore(elapsed);
 }
 
 // ---- タイマー表示更新 ---- //
 function updateTimer() {
   const elapsed = (Date.now() - startTime) / 1000;
   timerSpan.textContent = elapsed.toFixed(2);
+  
+  // リアルタイムWPMを更新
+  updateRealTimeWPM(elapsed);
+  
+  // 進捗バーを更新
+  updateProgressBar();
 }
 
 // ---- マウスクリック監視を設定 ---- //
@@ -443,7 +503,7 @@ function setupMouseClickTracking() {
 }
 
 // ---- マウスクリック時の処理 ---- //
-function onMouseClick(e) {
+function onMouseClick() {
   // タイピング練習中のみカウント
   if (startTime && !textInput.disabled) {
     mouseClickCount++;
@@ -511,5 +571,143 @@ function updateKeyDisplay() {
   } else {
     // 複数キーの組み合わせの場合（例：Shift + R）
     keyDisplay.innerHTML = keyElements.join('<span class="key-plus"> + </span>');
+  }
+}
+
+// ---- スコア計算・表示関数 ---- //
+function calculateAndDisplayScore(elapsedSeconds) {
+  const totalChars = practiceText.length;
+  const correctChars = lockedLength;
+  const incorrectChars = totalChars - correctChars;
+  
+  // WPM (Words Per Minute) - 日本語では1単語 = 5文字として計算
+  const wpm = Math.round((correctChars / 5) / (elapsedSeconds / 60));
+  
+  // CPM (Characters Per Minute)
+  const cpm = Math.round(correctChars / (elapsedSeconds / 60));
+  
+  // 正確率
+  const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
+  
+  // DOM要素を取得して値を設定
+  document.getElementById("wpm-score").textContent = wpm;
+  document.getElementById("cpm-score").textContent = cpm;
+  document.getElementById("accuracy-score").textContent = accuracy + "%";
+  document.getElementById("total-chars").textContent = totalChars;
+  document.getElementById("correct-chars").textContent = correctChars;
+  document.getElementById("error-chars").textContent = incorrectChars;
+  
+  // スコアエリアを表示
+  if (scoreArea) {
+    scoreArea.style.display = "block";
+    scoreArea.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
+// ---- リトライボタンのイベントリスナー ---- //
+if (retryBtn) {
+  retryBtn.addEventListener("click", () => {
+    if (practiceText) {
+      resetTypingArea();
+      renderDisplay();
+      activateTyping();
+    }
+  });
+}
+
+// ---- リアルタイムWPM更新 ---- //
+function updateRealTimeWPM(elapsedSeconds) {
+  if (elapsedSeconds > 0 && lockedLength > 0) {
+    const wpm = Math.round((lockedLength / 5) / (elapsedSeconds / 60));
+    if (realTimeWpmSpan) {
+      realTimeWpmSpan.textContent = wpm;
+    }
+  }
+}
+
+// ---- 進捗バー更新 ---- //
+function updateProgressBar() {
+  if (practiceText && progressBar && progressText) {
+    const progress = (userInput.length / practiceText.length) * 100;
+    progressBar.style.width = progress + "%";
+    progressText.textContent = Math.round(progress) + "%";
+  }
+}
+
+// ---- グローバルキーボードショートカット ---- //
+document.addEventListener("keydown", function(e) {
+  // ESCキーでリセット
+  if (e.key === "Escape" && practiceText) {
+    resetTypingArea();
+    renderDisplay();
+    activateTyping();
+  }
+  
+  // F5キーでリロード（デフォルト動作を禁止してリセット）
+  if (e.key === "F5" && practiceText) {
+    e.preventDefault();
+    resetTypingArea();
+    renderDisplay();
+    activateTyping();
+  }
+});
+
+// ---- ダークモード初期化 ---- //
+function initializeDarkMode() {
+  // ローカルストレージからテーマを読み込み
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.body.setAttribute('data-theme', savedTheme);
+  updateThemeIcon(savedTheme);
+  
+  // ダークモードトグルボタンのイベントリスナー
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', toggleDarkMode);
+  }
+}
+
+// ---- ダークモード切り替え ---- //
+function toggleDarkMode() {
+  const currentTheme = document.body.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  
+  document.body.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeIcon(newTheme);
+}
+
+// ---- テーマアイコン更新 ---- //
+function updateThemeIcon(theme) {
+  if (themeIcon) {
+    themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+  }
+}
+
+// ---- タイピングサウンド再生 ---- //
+function playSound(type) {
+  if (!soundEnabled) return;
+  
+  // Web Audio APIを使用して簡単なビープ音を生成
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    if (type === 'correct') {
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    } else if (type === 'error') {
+      oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+    }
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+  } catch (error) {
+    // サウンド再生に失敗してもエラーを表示しない
   }
 }
