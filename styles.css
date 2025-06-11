@@ -234,6 +234,17 @@ header h1 {
   position: relative !important;
 }
 
+/* ロックされた文字（正しく入力完了した文字）の強調 */
+.typed-locked {
+  background-color: rgba(25, 135, 84, 0.4) !important;
+  color: #0f5132 !important;
+  font-weight: bold !important;
+  border: 2px solid rgba(25, 135, 84, 0.7) !important;
+  border-radius: 3px !important;
+  position: relative !important;
+  box-shadow: 0 1px 3px rgba(25, 135, 84, 0.3) !important;
+}
+
 /* 入力文字のオーバーレイ効果 - 正しい入力 */
 .typed-correct::before {
   content: attr(data-input);

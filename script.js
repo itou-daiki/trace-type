@@ -5,6 +5,7 @@ let startTime = null;       // 開始時刻（Date オブジェクト）
 let timerInterval = null;   // タイマー更新用 interval ID
 let isComposing = false;    // IME変換中かどうかのフラグ
 let mouseClickCount = 0;    // マウスクリック回数
+let lockedLength = 0;       // ロックされた文字数（正しく入力完了した文字数）
 
 // ---- JIS配列キーマッピング ---- //
 const jisKeyMap = {
@@ -247,6 +248,7 @@ function fetchPracticeText(filename) {
 // ---- タイピングエリアを初期化 ---- //
 function resetTypingArea() {
   userInput = "";
+  lockedLength = 0;
   clearInterval(timerInterval);
   timerSpan.textContent = "0.00";
   startTime = null;
@@ -276,7 +278,12 @@ function renderDisplay() {
     if (i < userInput.length) {
       // 入力済み文字
       if (userInput[i] === char) {
-        span.className = "typed-correct";
+        // ロックされた文字かどうかで表示を変える
+        if (i < lockedLength) {
+          span.className = "typed-locked";
+        } else {
+          span.className = "typed-correct";
+        }
         // 正しい入力文字をトレース文字の上に表示
         span.setAttribute('data-input', userInput[i]);
       } else {
@@ -380,13 +387,44 @@ function onUserInput() {
     return;
   }
 
+  // ロックされた部分が変更されていないかチェック
+  if (val.length < lockedLength || val.substring(0, lockedLength) !== practiceText.substring(0, lockedLength)) {
+    // ロックされた部分が変更された場合、元に戻す
+    textInput.removeEventListener("input", onUserInput);
+    textInput.value = userInput;
+    textInput.addEventListener("input", onUserInput);
+    // カーソルを正しい位置に移動
+    textInput.setSelectionRange(userInput.length, userInput.length);
+    return;
+  }
+
   userInput = val;
+
+  // 正しく入力された文字をロック
+  updateLockedLength();
+
   renderDisplay();
 
   // すべて入力し終えたら完了処理
   if (userInput.length === practiceText.length) {
     finishTyping();
   }
+}
+
+// ---- ロックされた文字数を更新 ---- //
+function updateLockedLength() {
+  let newLockedLength = lockedLength;
+  
+  // 現在のロック位置から順番に正しい文字をチェック
+  for (let i = lockedLength; i < userInput.length; i++) {
+    if (userInput[i] === practiceText[i]) {
+      newLockedLength = i + 1;
+    } else {
+      break; // 間違った文字が見つかったら停止
+    }
+  }
+  
+  lockedLength = newLockedLength;
 }
 
 // ---- IME変換開始時の処理 ---- //
@@ -408,12 +446,51 @@ function onCompositionEnd(e) {
   }, 0);
 }
 
-// ---- キー押下時に、記号入力をサポート（「。」と「、」以外はブロック） ---- //
+// ---- キー押下時の制御 ---- //
 function onKeyDown(e) {
-  const allowedPunctuations = ["、", "。"];
   const key = e.key;
-
-  // key が一文字で英数・空白でないもの＝記号とみなす
+  
+  // カーソル移動キーを無効化
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(key)) {
+    e.preventDefault();
+    return;
+  }
+  
+  // Backspaceの制御：ロックされた文字は削除できない
+  if (key === 'Backspace') {
+    const currentLength = textInput.value.length;
+    if (currentLength <= lockedLength) {
+      e.preventDefault();
+      return;
+    }
+  }
+  
+  // Delete キーを無効化
+  if (key === 'Delete') {
+    e.preventDefault();
+    return;
+  }
+  
+  // Ctrl+A（全選択）を無効化
+  if (e.ctrlKey && key === 'a') {
+    e.preventDefault();
+    return;
+  }
+  
+  // Ctrl+Z（元に戻す）を無効化
+  if (e.ctrlKey && key === 'z') {
+    e.preventDefault();
+    return;
+  }
+  
+  // Ctrl+Y（やり直し）を無効化
+  if (e.ctrlKey && key === 'y') {
+    e.preventDefault();
+    return;
+  }
+  
+  // 記号入力のサポート
+  const allowedPunctuations = ["、", "。"];
   if (key.length === 1 && !/\w|\s/.test(key)) {
     if (!allowedPunctuations.includes(key)) {
       e.preventDefault();
