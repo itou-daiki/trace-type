@@ -6,7 +6,6 @@ let timerInterval = null;   // タイマー更新用 interval ID
 let isComposing = false;    // IME変換中かどうかのフラグ
 let mouseClickCount = 0;    // マウスクリック回数
 let lockedLength = 0;       // ロックされた文字数（正しく入力完了した文字数）
-let kanjiReadingCache = {}; // 漢字の読みキャッシュ
 
 // ---- JIS配列キーマッピング ---- //
 const jisKeyMap = {
@@ -86,7 +85,7 @@ const jisKeyMap = {
   'ッ': ['ltu'], 'ャ': ['lya'], 'ュ': ['lyu'], 'ョ': ['lyo'],
   
   // よく使われる漢字（複数の読み方を配列で定義）
-  '日': ['hi', 'nichi', 'bi'], '本': ['hon', 'moto'], '人': ['jin', 'hito'], '国': ['koku', 'kuni'], '年': ['nen', 'toshi'],
+  '日': ['hi'], '本': ['hon'], '人': ['jin'], '国': ['koku'], '年': ['nen'],
   '時': ['ji'], '分': ['hun'], '月': ['getsu'], '火': ['ka'], '水': ['sui'],
   '木': ['moku'], '金': ['kin'], '土': ['do'], '大': ['dai'], '小': ['shou'],
   '中': ['naka'], '高': ['kou'], '学': ['gaku'], '校': ['kou'], '生': ['sei'],
@@ -543,90 +542,6 @@ function updateMouseClickDisplay() {
   }
 }
 
-// ---- 漢字の読みをAPIで取得 ---- //
-async function getKanjiReading(kanji) {
-  // キャッシュをチェック
-  if (kanjiReadingCache[kanji]) {
-    return kanjiReadingCache[kanji];
-  }
-  
-  try {
-    const response = await fetch(`https://jisho.org/api/v1/search/words?keyword=${encodeURIComponent(kanji)}`);
-    const data = await response.json();
-    
-    if (data.data && data.data.length > 0) {
-      const readings = [];
-      
-      // 各エントリから読みを抽出
-      for (const entry of data.data) {
-        if (entry.japanese) {
-          for (const japanese of entry.japanese) {
-            if (japanese.word === kanji && japanese.reading) {
-              // ひらがなをローマ字に変換
-              const romaji = hiraganaToRomaji(japanese.reading);
-              if (romaji && !readings.includes(romaji)) {
-                readings.push(romaji);
-              }
-            }
-          }
-        }
-      }
-      
-      // 読みが見つかった場合はキャッシュに保存
-      if (readings.length > 0) {
-        kanjiReadingCache[kanji] = readings;
-        return readings;
-      }
-    }
-  } catch (error) {
-    console.warn(`漢字「${kanji}」の読み取得に失敗:`, error);
-  }
-  
-  // APIで取得できない場合は既存のマッピングを使用
-  return null;
-}
-
-// ---- ひらがなをローマ字に変換 ---- //
-function hiraganaToRomaji(hiragana) {
-  const hiraganaToRomajiMap = {
-    'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o',
-    'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
-    'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go',
-    'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
-    'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo',
-    'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
-    'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do',
-    'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no',
-    'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho',
-    'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
-    'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po',
-    'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
-    'や': 'ya', 'ゆ': 'yu', 'よ': 'yo',
-    'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro',
-    'わ': 'wa', 'ゐ': 'wi', 'ゑ': 'we', 'を': 'wo', 'ん': 'n',
-    'ー': '-'
-  };
-  
-  let result = '';
-  for (let i = 0; i < hiragana.length; i++) {
-    const char = hiragana[i];
-    if (hiraganaToRomajiMap[char]) {
-      result += hiraganaToRomajiMap[char];
-    } else {
-      result += char; // 変換できない文字はそのまま
-    }
-  }
-  
-  return result;
-}
-
-// ---- 漢字かどうかを判定 ---- //
-function isKanji(char) {
-  const code = char.charCodeAt(0);
-  return (code >= 0x4e00 && code <= 0x9faf) || // CJK統合漢字
-         (code >= 0x3400 && code <= 0x4dbf) || // CJK拡張A
-         (code >= 0x20000 && code <= 0x2a6df); // CJK拡張B
-}
 
 // ---- キー表示を更新 ---- //
 function updateKeyDisplay() {
