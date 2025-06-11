@@ -247,6 +247,10 @@ header {
   box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  align-items: center;
 }
 
 .instructions::before {
@@ -257,13 +261,6 @@ header {
   right: 0;
   height: 1px;
   background: var(--gradient-primary);
-}
-
-.instructions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  align-items: center;
 }
 
 .instruction-item {
@@ -279,6 +276,12 @@ header {
   transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  word-wrap: break-word;
+  hyphens: auto;
 }
 
 .instruction-item::before {
@@ -629,8 +632,8 @@ header {
   border: none;
   resize: none;
   background: transparent;
-  color: transparent;
-  caret-color: transparent;
+  color: var(--text-primary);
+  caret-color: var(--primary-500);
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 1.1rem;
   line-height: 1.8;
@@ -639,7 +642,8 @@ header {
   overflow-wrap: break-word;
   overflow: auto;
   padding: 1rem 1.5rem;
-  z-index: 15;
+  z-index: 5;
+  opacity: 0.1;
 }
 
 /* Character States */
@@ -944,6 +948,13 @@ header {
   .instructions {
     grid-template-columns: 1fr;
     padding: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .instruction-item {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    min-height: 50px;
   }
   
   .selector {
@@ -1004,6 +1015,23 @@ header {
   .text-display, .text-input {
     font-size: 0.9rem;
     padding: 0.5rem 0.75rem;
+  }
+  
+  .instructions {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+  
+  .instruction-item {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8rem;
+    min-height: 45px;
+  }
+  
+  .key-highlight {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
   }
 }
 
