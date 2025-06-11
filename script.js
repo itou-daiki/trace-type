@@ -209,11 +209,9 @@ function resetTypingArea() {
 
 
 // ---- 背景テキスト表示を更新 ---- //
-// ここで「入力済み部分は緑／赤」「未入力部分は灰色」で描画し、
-// 現在入力中の文字をハイライトし、入力文字をトレース文字の上に重ねて表示する。
 function renderDisplay() {
   const fragment = document.createDocumentFragment();
-  const spanElements = []; // span要素を追跡するための配列
+  const spanElements = [];
 
   // 文字ごとに span を作成し、色を付けていく
   for (let i = 0; i < practiceText.length; i++) {
@@ -223,43 +221,30 @@ function renderDisplay() {
     if (i < userInput.length) {
       // 入力済み文字
       if (userInput[i] === char) {
-        // ロックされた文字かどうかで表示を変える
         if (i < lockedLength) {
           span.className = "typed-locked";
         } else {
           span.className = "typed-correct";
         }
-        // 正しい入力文字をトレース文字の上に表示
         span.setAttribute('data-input', userInput[i]);
       } else {
         span.className = "typed-incorrect";
-        // 間違った入力文字をトレース文字の上に表示
         span.setAttribute('data-input', userInput[i]);
         span.setAttribute('data-expected', char);
       }
     } else if (i === userInput.length) {
-      // 現在入力中の文字（次に入力すべき文字）
+      // 現在入力中の文字
       span.className = "current-char";
-      span.style.color = "#333";
-      span.style.fontWeight = "bold";
     } else {
       // 未入力文字
-      span.style.color = "#999";
-      span.style.opacity = "0.6";
+      span.className = "untyped-char";
     }
 
     // 改行文字の処理
     if (char === "\n") {
       span.innerHTML = "<br/>";
-      // 改行文字の場合、視覚的に見えるように小さなマーカーを追加
-      span.style.position = "relative";
-      if (i === userInput.length) {
-        // 現在入力中の改行文字の場合、改行後の位置にカーソルを表示
-        span.style.display = "block";
-        span.style.height = "1.6em";
-        span.style.width = "2px";
-        span.innerHTML = "<br/>";
-      }
+      span.style.display = "block";
+      span.style.height = "1.8em";
     } else {
       span.textContent = char;
     }
@@ -268,26 +253,15 @@ function renderDisplay() {
     fragment.appendChild(span);
   }
 
-  // 一度クリアしてから新しいノードを追加
+  // 表示更新
   textDisplay.innerHTML = "";
   textDisplay.appendChild(fragment);
 
   // キー表示を更新
   updateKeyDisplay();
 
-  // 「現在入力中の文字」を画面中央にスクロール
-  // userInput.length が全文字数と等しければ、すでに完了しているのでスクロール不要
-  if (userInput.length < practiceText.length) {
-    // spanElements配列から正しい要素を取得
-    const targetSpan = spanElements[userInput.length];
-    if (targetSpan) {
-      // 画面中央に表示するようにスクロール
-      targetSpan.scrollIntoView({ 
-        block: "center", 
-        behavior: "smooth" 
-      });
-    }
-  }
+  // 現在入力中の文字をスクロール表示
+  scrollToCurrentChar(spanElements);
 }
 
 // ---- 貼り付け・ドロップを禁止 ---- //
@@ -571,6 +545,27 @@ function updateKeyDisplay() {
   } else {
     // 複数キーの組み合わせの場合（例：Shift + R）
     keyDisplay.innerHTML = keyElements.join('<span class="key-plus"> + </span>');
+  }
+}
+
+// ---- 現在の文字へスクロール ---- //
+function scrollToCurrentChar(spanElements) {
+  if (userInput.length < practiceText.length && spanElements[userInput.length]) {
+    const targetElement = spanElements[userInput.length];
+    const container = textDisplay.parentElement; // typing-area
+    
+    // 要素の位置を取得
+    const elementRect = targetElement.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    
+    // コンテナの中央に要素が来るようにスクロール位置を計算
+    const scrollTop = container.scrollTop + (elementRect.top - containerRect.top) - (container.clientHeight / 2) + (elementRect.height / 2);
+    
+    // スムーズスクロール
+    container.scrollTo({
+      top: Math.max(0, scrollTop),
+      behavior: 'smooth'
+    });
   }
 }
 
