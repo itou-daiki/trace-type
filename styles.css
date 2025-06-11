@@ -141,6 +141,20 @@ header h1 {
   margin: 0 4px;
 }
 
+.key-or {
+  font-size: 1rem;
+  color: #6c757d;
+  margin: 0 8px;
+  font-style: italic;
+}
+
+.key-button.alternative {
+  background-color: #f8f9fa;
+  border: 2px solid #6c757d;
+  color: #6c757d;
+  opacity: 0.8;
+}
+
 
 /* タイピングエリア全体 */
 .typing-area {
