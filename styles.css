@@ -615,7 +615,11 @@ header {
 }
 
 .text-display {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
   white-space: pre-wrap;
@@ -627,7 +631,8 @@ header {
   padding: 1rem;
   z-index: 10;
   pointer-events: none;
-  overflow-y: auto;
+  overflow: auto;
+  box-sizing: border-box;
 }
 
 .text-input {
@@ -653,6 +658,7 @@ header {
   padding: 1rem;
   z-index: 5;
   opacity: 1;
+  box-sizing: border-box;
 }
 
 /* Character States */
