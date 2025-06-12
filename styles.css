@@ -641,7 +641,7 @@ header {
   border: none;
   resize: none;
   background: transparent;
-  color: var(--text-primary);
+  color: transparent;
   caret-color: var(--primary-500);
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 1rem;
@@ -652,7 +652,7 @@ header {
   overflow: auto;
   padding: 1rem;
   z-index: 5;
-  opacity: 0.1;
+  opacity: 1;
 }
 
 /* Character States */
