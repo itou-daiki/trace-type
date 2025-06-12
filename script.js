@@ -233,8 +233,12 @@ function renderDisplay() {
         span.setAttribute('data-expected', char);
       }
     } else if (i === userInput.length) {
-      // 現在入力中の文字
-      span.className = "current-char";
+      // 現在入力中の文字 - IME使用中の特別スタイル
+      if (isComposing) {
+        span.className = "current-char ime-composing";
+      } else {
+        span.className = "current-char";
+      }
     } else {
       // 未入力文字
       span.className = "untyped-char";
@@ -373,16 +377,22 @@ function updateLockedLength() {
 // ---- IME変換開始時の処理 ---- //
 function onCompositionStart(e) {
   isComposing = true;
+  showImeIndicator();
+  updateImeCompositionDisplay();
 }
 
 // ---- IME変換更新時の処理 ---- //
 function onCompositionUpdate(e) {
-  // 変換中は何もしない
+  updateImePreview(e.data || '');
+  updateImeCompositionDisplay();
 }
 
 // ---- IME変換終了時の処理 ---- //
 function onCompositionEnd(e) {
   isComposing = false;
+  hideImeIndicator();
+  hideImePreview();
+  updateImeCompositionDisplay();
   // 変換が確定したので、入力処理を実行
   setTimeout(() => {
     onUserInput();
@@ -489,6 +499,56 @@ function onMouseClick() {
 function updateMouseClickDisplay() {
   if (mouseClicksSpan) {
     mouseClicksSpan.textContent = mouseClickCount;
+  }
+}
+
+// ---- IME状態インジケーター表示 ---- //
+function showImeIndicator() {
+  const indicator = document.getElementById('ime-indicator');
+  if (indicator) {
+    indicator.classList.add('active');
+  }
+}
+
+// ---- IME状態インジケーター非表示 ---- //
+function hideImeIndicator() {
+  const indicator = document.getElementById('ime-indicator');
+  if (indicator) {
+    indicator.classList.remove('active');
+  }
+}
+
+// ---- IME変換プレビュー更新 ---- //
+function updateImePreview(compositionText) {
+  const preview = document.getElementById('ime-preview');
+  if (preview && compositionText) {
+    preview.textContent = compositionText;
+    preview.classList.add('visible');
+    
+    // プレビューの位置を現在の文字位置に調整
+    const currentCharSpan = textDisplay.querySelector('.current-char');
+    if (currentCharSpan) {
+      const rect = currentCharSpan.getBoundingClientRect();
+      const containerRect = textDisplay.getBoundingClientRect();
+      preview.style.left = (rect.left - containerRect.left) + 'px';
+    }
+  }
+}
+
+// ---- IME変換プレビュー非表示 ---- //
+function hideImePreview() {
+  const preview = document.getElementById('ime-preview');
+  if (preview) {
+    preview.classList.remove('visible');
+    preview.textContent = '';
+  }
+}
+
+// ---- IME変換中の文字表示更新 ---- //
+function updateImeCompositionDisplay() {
+  // renderDisplayを再実行してIME状態を反映
+  if (practiceText) {
+    renderDisplay();
   }
 }
 

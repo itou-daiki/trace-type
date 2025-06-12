@@ -54,6 +54,9 @@
       <!-- 背景に練習テキストを表示する領域 -->
       <div id="text-display" class="text-display"></div>
 
+      <!-- IME Preview Area -->
+      <div id="ime-preview" class="ime-preview"></div>
+
       <!-- キー入力を受け取る透明テキストエリア -->
       <textarea
         id="text-input"
@@ -63,6 +66,11 @@
         spellcheck="false"
       ></textarea>
     </section>
+
+    <!-- IME Status Indicator -->
+    <div id="ime-indicator" class="ime-indicator">
+      日本語入力中...
+    </div>
 
     <!-- 進捗バー -->
     <section class="progress-section" id="progress-section" style="display: none;">

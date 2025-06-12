@@ -714,6 +714,96 @@ header {
   opacity: 0.8;
 }
 
+/* IME Composition Styles */
+.ime-composing {
+  background: linear-gradient(135deg, #000000 0%, #333333 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border: 3px solid #ff6b35 !important;
+  border-radius: 6px !important;
+  padding: 3px 6px !important;
+  margin: 0 2px !important;
+  position: relative !important;
+  z-index: 30 !important;
+  box-shadow: 0 0 15px rgba(255, 107, 53, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  animation: imeGlow 1s ease-in-out infinite alternate !important;
+}
+
+@keyframes imeGlow {
+  0% { 
+    box-shadow: 0 0 15px rgba(255, 107, 53, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border-color: #ff6b35;
+  }
+  100% { 
+    box-shadow: 0 0 25px rgba(255, 107, 53, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    border-color: #ff8c69;
+  }
+}
+
+/* IME Status Indicator */
+.ime-indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c69 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.ime-indicator.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* IME Preview Area */
+.ime-preview {
+  position: absolute;
+  top: -50px;
+  left: 0;
+  background: rgba(0, 0, 0, 0.9);
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  border: 2px solid #ff6b35;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.2s ease;
+  pointer-events: none;
+  min-width: 100px;
+  text-align: center;
+}
+
+.ime-preview.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ime-preview::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #ff6b35;
+}
+
 /* ==================== STATS SECTION ==================== */
 
 .result-area {
