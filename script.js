@@ -766,3 +766,55 @@ function playSound(type) {
     // サウンド再生に失敗してもエラーを表示しない
   }
 }
+
+// ---- 低解像度レイアウト初期化 ---- //
+function initializeLowResolutionLayout() {
+  const statsToggle = document.getElementById('stats-toggle');
+  const statsGrid = document.getElementById('stats-grid');
+  
+  // 低解像度でのみトグルボタンを表示
+  if (window.innerWidth <= 1366 && window.innerHeight <= 768) {
+    if (statsToggle) {
+      statsToggle.style.display = 'flex';
+      statsToggle.addEventListener('click', toggleStatsVisibility);
+    }
+  }
+  
+  // リサイズ時のハンドラ
+  window.addEventListener('resize', () => {
+    if (window.innerWidth <= 1366 && window.innerHeight <= 768) {
+      if (statsToggle) statsToggle.style.display = 'flex';
+    } else {
+      if (statsToggle) statsToggle.style.display = 'none';
+      if (statsGrid) statsGrid.classList.remove('hidden');
+    }
+  });
+}
+
+// ---- 統計表示切り替え ---- //
+function toggleStatsVisibility() {
+  const statsGrid = document.getElementById('stats-grid');
+  const statsToggle = document.getElementById('stats-toggle');
+  
+  if (statsGrid) {
+    if (statsGrid.classList.contains('hidden')) {
+      statsGrid.classList.remove('hidden');
+      if (statsToggle) statsToggle.textContent = '❌';
+    } else {
+      statsGrid.classList.add('hidden');
+      if (statsToggle) statsToggle.textContent = '📊';
+    }
+  }
+}
+
+// ---- アプリ初期化 ---- //
+window.addEventListener("DOMContentLoaded", function() {
+  console.log("🚀 Trace Type アプリケーションを読み込み中...");
+  
+  loadFileList();
+  initializeDarkMode();
+  initializeLowResolutionLayout();
+  setupMouseClickTracking();
+  
+  console.log("✅ アプリケーションの初期化が完了しました！");
+});

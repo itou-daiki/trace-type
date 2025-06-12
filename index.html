@@ -82,23 +82,25 @@
 
     <!-- 結果表示エリア -->
     <section class="result-area">
-      <div class="stats-grid">
+      <div class="stats-grid" id="stats-grid">
         <div class="stat-item">
-          <span class="stat-label">経過時間:</span>
+          <span class="stat-label">経過時間</span>
           <span class="stat-value" id="timer">0.00</span>
           <span class="stat-unit">秒</span>
         </div>
         <div class="stat-item">
-          <span class="stat-label">リアルタイムWPM:</span>
+          <span class="stat-label">WPM</span>
           <span class="stat-value" id="real-time-wpm">0</span>
           <span class="stat-unit">WPM</span>
         </div>
         <div class="stat-item">
-          <span class="stat-label">マウスクリック:</span>
+          <span class="stat-label">クリック</span>
           <span class="stat-value" id="mouse-clicks">0</span>
           <span class="stat-unit">回</span>
         </div>
       </div>
+      <!-- Stats Toggle Button (only visible on low resolution) -->
+      <button class="stats-toggle" id="stats-toggle" style="display: none;">📊</button>
     </section>
 
     <!-- スコア表示エリア -->
