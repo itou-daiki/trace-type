@@ -487,6 +487,9 @@ function updateTimer() {
   
   // 進捗バーを更新
   updateProgressBar();
+  
+  // 入力文字数を更新
+  updateInputCharsDisplay();
 }
 
 // ---- マウスクリック監視を設定 ---- //
@@ -512,8 +515,9 @@ function updateMouseClickDisplay() {
 
 // ---- 入力文字数表示を更新 ---- //
 function updateInputCharsDisplay() {
-  if (inputCharsSpan) {
-    inputCharsSpan.textContent = userInput.length;
+  const inputCharsElement = document.getElementById("input-chars");
+  if (inputCharsElement) {
+    inputCharsElement.textContent = userInput.length;
   }
 }
 
