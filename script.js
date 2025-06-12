@@ -540,12 +540,31 @@ function updateImePreview(compositionText) {
     preview.textContent = compositionText;
     preview.classList.add('visible');
     
-    // プレビューの位置を現在の文字位置に調整
+    // プレビューの位置を現在の文字位置に調整（キー表示エリアと被らないように）
     const currentCharSpan = textDisplay.querySelector('.current-char');
-    if (currentCharSpan) {
+    const keyDisplayArea = document.querySelector('.key-display-area');
+    
+    if (currentCharSpan && keyDisplayArea) {
       const rect = currentCharSpan.getBoundingClientRect();
       const containerRect = textDisplay.getBoundingClientRect();
-      preview.style.left = (rect.left - containerRect.left) + 'px';
+      const keyDisplayRect = keyDisplayArea.getBoundingClientRect();
+      
+      // 基本位置を設定
+      let left = rect.left - containerRect.left;
+      let top = -80; // デフォルトは上に表示
+      
+      // キー表示エリアと重なる場合は下に表示
+      if (rect.top - 80 < keyDisplayRect.bottom + 20) {
+        top = 40; // 下に表示
+        preview.classList.add('position-bottom');
+        preview.classList.remove('position-top');
+      } else {
+        preview.classList.add('position-top');
+        preview.classList.remove('position-bottom');
+      }
+      
+      preview.style.left = left + 'px';
+      preview.style.top = top + 'px';
     }
   }
 }
