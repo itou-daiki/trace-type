@@ -103,7 +103,9 @@ const textDisplay = document.getElementById("text-display");
 const textInput   = document.getElementById("text-input");
 const timerSpan   = document.getElementById("timer");
 const mouseClicksSpan = document.getElementById("mouse-clicks");
+const inputCharsSpan = document.getElementById("input-chars");
 const keyDisplay = document.getElementById("key-display");
+const inputModeIndicator = document.getElementById("input-mode-indicator");
 const scoreArea = document.getElementById("score-area");
 const retryBtn = document.getElementById("retry-btn");
 const progressSection = document.getElementById("progress-section");
@@ -295,6 +297,9 @@ function activateTyping() {
   // 初期進捗更新
   updateProgressBar();
   
+  // 初期入力文字数表示
+  updateInputCharsDisplay();
+  
   // IME変換イベントを監視
   textInput.addEventListener("compositionstart", onCompositionStart);
   textInput.addEventListener("compositionupdate", onCompositionUpdate);
@@ -351,6 +356,9 @@ function onUserInput() {
   updateLockedLength();
 
   renderDisplay();
+  
+  // 入力文字数表示を更新
+  updateInputCharsDisplay();
 
   // すべて入力し終えたら完了処理
   if (userInput.length === practiceText.length) {
@@ -502,6 +510,13 @@ function updateMouseClickDisplay() {
   }
 }
 
+// ---- 入力文字数表示を更新 ---- //
+function updateInputCharsDisplay() {
+  if (inputCharsSpan) {
+    inputCharsSpan.textContent = userInput.length;
+  }
+}
+
 // ---- IME状態インジケーター表示 ---- //
 function showImeIndicator() {
   const indicator = document.getElementById('ime-indicator');
@@ -553,6 +568,25 @@ function updateImeCompositionDisplay() {
 }
 
 
+// ---- 入力モード表示を更新 ---- //
+function updateInputModeDisplay(currentChar) {
+  if (!inputModeIndicator) return;
+  
+  // 文字種別を判定
+  let mode = '';
+  if (/[a-zA-Z0-9\s\[\]{}();:'",.!?@#$%^&*\-=_+\\|`~<>/]/.test(currentChar)) {
+    mode = '<span style="color: #0ea5e9; font-weight: 600;">[半角]</span>';
+  } else if (/[あ-んア-ンー々〇〻]/.test(currentChar)) {
+    mode = '<span style="color: #c955f0; font-weight: 600;">[全角]</span>';
+  } else if (/[、。「」『』（）【】〈〉《》〔〕［］｛｝〜・…‥！？：；]/.test(currentChar)) {
+    mode = '<span style="color: #22c55e; font-weight: 600;">[記号]</span>';
+  } else {
+    mode = '<span style="color: #ef4444; font-weight: 600;">[その他]</span>';
+  }
+  
+  inputModeIndicator.innerHTML = mode;
+}
+
 // ---- キー表示を更新 ---- //
 function updateKeyDisplay() {
   if (!keyDisplay) return;
@@ -560,11 +594,17 @@ function updateKeyDisplay() {
   // 練習が完了している場合
   if (userInput.length >= practiceText.length) {
     keyDisplay.innerHTML = '<span style="color: #28a745; font-weight: bold;">完了！</span>';
+    if (inputModeIndicator) {
+      inputModeIndicator.innerHTML = '';
+    }
     return;
   }
   
   // 現在入力すべき文字を取得
   const currentChar = practiceText[userInput.length];
+  
+  // 入力モード表示を更新
+  updateInputModeDisplay(currentChar);
   
   // 既存のキーマッピングを取得
   const keyMapping = jisKeyMap[currentChar];

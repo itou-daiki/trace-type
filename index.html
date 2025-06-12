@@ -44,7 +44,7 @@
 
     <!-- キー表示エリア -->
     <section class="key-display-area">
-      <div class="key-display-label">入力すべきキー:</div>
+      <div class="key-display-label">入力すべきキー: <span id="input-mode-indicator"></span></div>
       <div id="key-display" class="key-display"></div>
     </section>
 
@@ -87,6 +87,11 @@
           <span class="stat-label">経過時間</span>
           <span class="stat-value" id="timer">0.00</span>
           <span class="stat-unit">秒</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">入力文字</span>
+          <span class="stat-value" id="input-chars">0</span>
+          <span class="stat-unit">文字</span>
         </div>
         <div class="stat-item">
           <span class="stat-label">WPM</span>
