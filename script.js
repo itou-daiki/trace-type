@@ -114,6 +114,7 @@ const progressText = document.getElementById("progress-text");
 const realTimeWpmSpan = document.getElementById("real-time-wpm");
 const darkModeToggle = document.getElementById("dark-mode-toggle");
 const themeIcon = document.getElementById("theme-icon");
+const imeCompositionDisplay = document.getElementById("ime-composition-display");
 
 // ===== 初期化処理 ===== //
 window.addEventListener("DOMContentLoaded", () => {
@@ -393,6 +394,7 @@ function onCompositionStart(e) {
 function onCompositionUpdate(e) {
   updateImePreview(e.data || '');
   updateImeCompositionDisplay();
+  updateImeCompositionKeyDisplay(e.data || '');
 }
 
 // ---- IME変換終了時の処理 ---- //
@@ -400,6 +402,7 @@ function onCompositionEnd(e) {
   isComposing = false;
   hideImeIndicator();
   hideImePreview();
+  hideImeCompositionKeyDisplay();
   updateImeCompositionDisplay();
   // 変換が確定したので、入力処理を実行
   setTimeout(() => {
@@ -587,6 +590,26 @@ function updateImeCompositionDisplay() {
   // renderDisplayを再実行してIME状態を反映
   if (practiceText) {
     renderDisplay();
+  }
+}
+
+// ---- IME変換中の文字をキー表示エリアに表示 ---- //
+function updateImeCompositionKeyDisplay(compositionText) {
+  if (!imeCompositionDisplay) return;
+  
+  if (compositionText && compositionText.trim() !== '') {
+    imeCompositionDisplay.textContent = `入力中: ${compositionText}`;
+    imeCompositionDisplay.style.display = 'block';
+  } else {
+    imeCompositionDisplay.style.display = 'none';
+  }
+}
+
+// ---- IME変換中の文字表示を非表示 ---- //
+function hideImeCompositionKeyDisplay() {
+  if (imeCompositionDisplay) {
+    imeCompositionDisplay.style.display = 'none';
+    imeCompositionDisplay.textContent = '';
   }
 }
 
