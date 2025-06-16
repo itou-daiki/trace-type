@@ -118,32 +118,74 @@ const imeCompositionDisplay = document.getElementById("ime-composition-display")
 
 // ===== 初期化処理 ===== //
 window.addEventListener("DOMContentLoaded", () => {
-  loadFileList();
-  disablePasteAndDrop();
-  setupMouseClickTracking();
-  initializeDarkMode();
+  try {
+    console.log("🚀 Trace Type アプリケーションを初期化中...");
+    
+    // DOM要素の存在確認
+    const requiredElements = [
+      'file-select', 'start-btn', 'text-display', 'text-input', 
+      'timer', 'mouse-clicks', 'input-chars', 'key-display'
+    ];
+    
+    const missingElements = requiredElements.filter(id => !document.getElementById(id));
+    if (missingElements.length > 0) {
+      console.error('必要なDOM要素が見つかりません:', missingElements);
+      alert('アプリケーションの初期化に失敗しました。ページをリロードしてください。');
+      return;
+    }
+    
+    loadFileList();
+    disablePasteAndDrop();
+    setupMouseClickTracking();
+    initializeDarkMode();
+    setupErrorHandling();
+    
+    console.log("✅ 初期化が完了しました");
+  } catch (error) {
+    console.error('初期化エラー:', error);
+    alert('アプリケーションの初期化中にエラーが発生しました。ページをリロードしてください。');
+  }
 });
 
 // ---- 練習ファイル一覧を読み込む ---- //
 function loadFileList() {
   fetch("Practice/files.json")
     .then(res => {
-      if (!res.ok) throw new Error("files.json の読み込みに失敗しました");
+      if (!res.ok) throw new Error(`files.json の読み込みに失敗しました (${res.status})`);
       return res.json();
     })
     .then(fileList => {
+      if (!Array.isArray(fileList)) {
+        throw new Error('ファイルリストの形式が正しくありません');
+      }
+      
       fileList.forEach(filename => {
-        const option = document.createElement("option");
-        option.value = filename;
-        option.textContent = filename;
-        fileSelect.appendChild(option);
+        if (filename && typeof filename === 'string') {
+          const option = document.createElement("option");
+          option.value = filename;
+          option.textContent = filename;
+          fileSelect.appendChild(option);
+        }
       });
-      fileSelect.disabled = false;
-      startBtn.disabled = false;
+      
+      if (fileSelect.options.length > 1) { // デフォルトオプション以外があるか
+        fileSelect.disabled = false;
+        startBtn.disabled = false;
+      } else {
+        throw new Error('利用可能な練習ファイルが見つかりません');
+      }
     })
     .catch(err => {
-      console.error(err);
-      alert("練習ファイル一覧の読み込みに失敗しました。");
+      console.error('ファイルリスト読み込みエラー:', err);
+      alert(`練習ファイル一覧の読み込みに失敗しました。\n詳細: ${err.message}`);
+      
+      // フォールバック: デフォルトファイルを追加
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "sample.md";
+      defaultOption.textContent = "サンプルテキスト";
+      fileSelect.appendChild(defaultOption);
+      fileSelect.disabled = false;
+      startBtn.disabled = false;
     });
 }
 
@@ -159,116 +201,187 @@ startBtn.addEventListener("click", () => {
 
 // ---- 選択した md ファイルを取得してプレーンテキスト化 ---- //
 function fetchPracticeText(filename) {
-  fetch(`Practice/${filename}`)
+  if (!filename || typeof filename !== 'string') {
+    alert('ファイル名が正しくありません。');
+    return;
+  }
+  
+  fetch(`Practice/${encodeURIComponent(filename)}`)
     .then(res => {
-      if (!res.ok) throw new Error("md ファイルの読み込みに失敗しました");
+      if (!res.ok) throw new Error(`md ファイルの読み込みに失敗しました (${res.status})`);
       return res.text();
     })
     .then(markdown => {
-      practiceText = markdown.replace(/\r\n/g, "\n");
+      if (!markdown || markdown.trim().length === 0) {
+        throw new Error('ファイルが空です');
+      }
+      
+      practiceText = markdown.replace(/\r\n/g, "\n").trim();
+      
+      if (practiceText.length === 0) {
+        throw new Error('有効なテキストが見つかりません');
+      }
+      
       resetTypingArea();
       renderDisplay();   // 初期表示（全て灰色）
       activateTyping();
     })
     .catch(err => {
-      console.error(err);
-      alert("練習テキストの読み込みに失敗しました。");
+      console.error('練習テキスト読み込みエラー:', err);
+      alert(`練習テキストの読み込みに失敗しました。\n詳細: ${err.message}`);
+      
+      // フォールバック: デフォルトテキストを使用
+      practiceText = "これはサンプルテキストです。\n実際の練習ファイルが読み込めませんでした。";
+      resetTypingArea();
+      renderDisplay();
+      activateTyping();
     });
 }
 
 // ---- タイピングエリアを初期化 ---- //
 function resetTypingArea() {
-  userInput = "";
-  lockedLength = 0;
-  totalKeystrokes = 0;
-  errorCount = 0;
-  clearInterval(timerInterval);
-  timerSpan.textContent = "0.00";
-  startTime = null;
-  textDisplay.innerHTML = "";   // 背景テキスト領域をクリア
-  textInput.value = "";
-  textInput.disabled = false;
-  textInput.focus();
-  
-  // マウスクリック回数をリセット
-  mouseClickCount = 0;
-  updateMouseClickDisplay();
-  
-  // スコアエリアを非表示
-  if (scoreArea) {
-    scoreArea.style.display = "none";
-  }
-  
-  // 進捗バーを非表示
-  if (progressSection) {
-    progressSection.style.display = "none";
-  }
-  
-  // リアルタイムWPMをリセット
-  if (realTimeWpmSpan) {
-    realTimeWpmSpan.textContent = "0";
+  try {
+    userInput = "";
+    lockedLength = 0;
+    totalKeystrokes = 0;
+    errorCount = 0;
+    
+    // タイマーをクリア
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    
+    if (timerSpan) {
+      timerSpan.textContent = "0.00";
+    }
+    
+    startTime = null;
+    
+    // テキスト表示をクリア
+    if (textDisplay) {
+      textDisplay.innerHTML = "";
+      textDisplay.classList.remove('loading');
+    }
+    
+    // 入力エリアをリセット
+    if (textInput) {
+      textInput.value = "";
+      textInput.disabled = false;
+      // フォーカスは非同期で実行してDOMの更新を待つ
+      setTimeout(() => {
+        if (textInput && !textInput.disabled) {
+          textInput.focus();
+        }
+      }, 100);
+    }
+    
+    // マウスクリック回数をリセット
+    mouseClickCount = 0;
+    updateMouseClickDisplay();
+    
+    // スコアエリアを非表示
+    if (scoreArea) {
+      scoreArea.style.display = "none";
+    }
+    
+    // 進捗バーを非表示
+    if (progressSection) {
+      progressSection.style.display = "none";
+    }
+    
+    // リアルタイムWPMをリセット
+    if (realTimeWpmSpan) {
+      realTimeWpmSpan.textContent = "0";
+    }
+    
+    // スクロール位置をリセット
+    resetScrollPosition();
+    
+    // IME状態をリセット
+    isComposing = false;
+    hideImeIndicator();
+    hideImePreview();
+    hideImeCompositionKeyDisplay();
+    
+  } catch (error) {
+    console.error('タイピングエリアリセットエラー:', error);
   }
 }
 
 
 // ---- 背景テキスト表示を更新 ---- //
 function renderDisplay() {
-  const fragment = document.createDocumentFragment();
-  const spanElements = [];
+  try {
+    if (!practiceText || practiceText.length === 0) {
+      console.warn('練習テキストが設定されていません');
+      return;
+    }
+    
+    if (!textDisplay) {
+      console.error('テキスト表示要素が見つかりません');
+      return;
+    }
+    
+    const fragment = document.createDocumentFragment();
+    const spanElements = [];
 
-  // 文字ごとに span を作成し、色を付けていく
-  for (let i = 0; i < practiceText.length; i++) {
-    const span = document.createElement("span");
-    const char = practiceText[i];
+    // 文字ごとに span を作成し、色を付けていく
+    for (let i = 0; i < practiceText.length; i++) {
+      const span = document.createElement("span");
+      const char = practiceText[i];
 
-    if (i < userInput.length) {
-      // 入力済み文字
-      if (userInput[i] === char) {
-        if (i < lockedLength) {
-          span.className = "typed-locked";
+      if (i < userInput.length) {
+        // 入力済み文字
+        if (userInput[i] === char) {
+          if (i < lockedLength) {
+            span.className = "typed-locked";
+          } else {
+            span.className = "typed-correct";
+          }
+          span.setAttribute('data-input', userInput[i]);
         } else {
-          span.className = "typed-correct";
+          span.className = "typed-incorrect";
+          span.setAttribute('data-input', userInput[i]);
+          span.setAttribute('data-expected', char);
         }
-        span.setAttribute('data-input', userInput[i]);
+      } else if (i === userInput.length) {
+        // 現在入力中の文字 - IME使用中の特別スタイル
+        if (isComposing) {
+          span.className = "current-char ime-composing";
+        } else {
+          span.className = "current-char";
+        }
       } else {
-        span.className = "typed-incorrect";
-        span.setAttribute('data-input', userInput[i]);
-        span.setAttribute('data-expected', char);
+        // 未入力文字
+        span.className = "untyped-char";
       }
-    } else if (i === userInput.length) {
-      // 現在入力中の文字 - IME使用中の特別スタイル
-      if (isComposing) {
-        span.className = "current-char ime-composing";
+
+      // 改行文字の処理
+      if (char === "\n") {
+        span.innerHTML = "<br/>";
+        span.style.display = "block";
+        span.style.height = "1.8em";
       } else {
-        span.className = "current-char";
+        span.textContent = char;
       }
-    } else {
-      // 未入力文字
-      span.className = "untyped-char";
+
+      spanElements.push(span);
+      fragment.appendChild(span);
     }
 
-    // 改行文字の処理
-    if (char === "\n") {
-      span.innerHTML = "<br/>";
-      span.style.display = "block";
-      span.style.height = "1.8em";
-    } else {
-      span.textContent = char;
-    }
+    // 表示更新
+    textDisplay.innerHTML = "";
+    textDisplay.appendChild(fragment);
 
-    spanElements.push(span);
-    fragment.appendChild(span);
+    // キー表示を更新
+    updateKeyDisplay();
+
+    // 現在入力中の文字をスクロール表示
+    scrollToCurrentChar(spanElements);
+  } catch (error) {
+    console.error('表示更新でエラーが発生しました:', error);
   }
-
-  // 表示更新
-  textDisplay.innerHTML = "";
-  textDisplay.appendChild(fragment);
-
-  // キー表示を更新
-  updateKeyDisplay();
-
-  // 現在入力中の文字をスクロール表示
-  scrollToCurrentChar(spanElements);
 }
 
 // ---- 貼り付け・ドロップを禁止 ---- //
@@ -542,37 +655,52 @@ function hideImeIndicator() {
 
 // ---- IME変換プレビュー更新 ---- //
 function updateImePreview(compositionText) {
-  const preview = document.getElementById('ime-preview');
-  if (preview && compositionText) {
-    preview.textContent = compositionText;
-    preview.classList.add('visible');
-    
-    // プレビューの位置を現在の文字位置に調整（キー表示エリアと被らないように）
-    const currentCharSpan = textDisplay.querySelector('.current-char');
-    const keyDisplayArea = document.querySelector('.key-display-area');
-    
-    if (currentCharSpan && keyDisplayArea) {
-      const rect = currentCharSpan.getBoundingClientRect();
-      const containerRect = textDisplay.getBoundingClientRect();
-      const keyDisplayRect = keyDisplayArea.getBoundingClientRect();
-      
-      // 基本位置を設定
-      let left = rect.left - containerRect.left;
-      let top = -80; // デフォルトは上に表示
-      
-      // キー表示エリアと重なる場合は下に表示
-      if (rect.top - 80 < keyDisplayRect.bottom + 20) {
-        top = 40; // 下に表示
-        preview.classList.add('position-bottom');
-        preview.classList.remove('position-top');
-      } else {
-        preview.classList.add('position-top');
-        preview.classList.remove('position-bottom');
-      }
-      
-      preview.style.left = left + 'px';
-      preview.style.top = top + 'px';
+  try {
+    const preview = document.getElementById('ime-preview');
+    if (!preview) {
+      console.warn('IMEプレビュー要素が見つかりません');
+      return;
     }
+    
+    if (compositionText && compositionText.trim()) {
+      preview.textContent = compositionText;
+      preview.classList.add('visible');
+      
+      // プレビューの位置を現在の文字位置に調整（キー表示エリアと被らないように）
+      const currentCharSpan = textDisplay ? textDisplay.querySelector('.current-char') : null;
+      const keyDisplayArea = document.querySelector('.key-display-area');
+      
+      if (currentCharSpan && keyDisplayArea) {
+        const rect = currentCharSpan.getBoundingClientRect();
+        const containerRect = textDisplay.getBoundingClientRect();
+        const keyDisplayRect = keyDisplayArea.getBoundingClientRect();
+        
+        // 基本位置を設定
+        let left = Math.max(0, rect.left - containerRect.left);
+        let top = -80; // デフォルトは上に表示
+        
+        // キー表示エリアと重なる場合は下に表示
+        if (rect.top - 80 < keyDisplayRect.bottom + 20) {
+          top = 40; // 下に表示
+          preview.classList.add('position-bottom');
+          preview.classList.remove('position-top');
+        } else {
+          preview.classList.add('position-top');
+          preview.classList.remove('position-bottom');
+        }
+        
+        // 画面端でのはみ出しを防ぐ
+        const maxLeft = containerRect.width - preview.offsetWidth;
+        left = Math.min(left, Math.max(0, maxLeft));
+        
+        preview.style.left = left + 'px';
+        preview.style.top = top + 'px';
+      }
+    } else {
+      preview.classList.remove('visible');
+    }
+  } catch (error) {
+    console.error('IMEプレビュー更新でエラーが発生しました:', error);
   }
 }
 
@@ -635,83 +763,127 @@ function updateInputModeDisplay(currentChar) {
 
 // ---- キー表示を更新 ---- //
 function updateKeyDisplay() {
-  if (!keyDisplay) return;
-  
-  // 練習が完了している場合
-  if (userInput.length >= practiceText.length) {
-    keyDisplay.innerHTML = '<span style="color: #28a745; font-weight: bold;">完了！</span>';
-    if (inputModeIndicator) {
-      inputModeIndicator.innerHTML = '';
+  try {
+    if (!keyDisplay) {
+      console.warn('キー表示要素が見つかりません');
+      return;
     }
-    return;
-  }
-  
-  // 現在入力すべき文字を取得
-  const currentChar = practiceText[userInput.length];
-  
-  // 入力モード表示を更新
-  updateInputModeDisplay(currentChar);
-  
-  // 既存のキーマッピングを取得
-  const keyMapping = jisKeyMap[currentChar];
-  
-  if (!keyMapping) {
-    // マッピングが見つからない場合
-    keyDisplay.innerHTML = `<span style="color: #dc3545;">「${currentChar}」</span>`;
-    return;
-  }
-  
-  // 複数の読み方がある場合の処理（例：しゃ → ['sha', 'sya']）
-  if (Array.isArray(keyMapping) && keyMapping.length > 1 && keyMapping.every(item => typeof item === 'string' && item.length > 1)) {
-    // 複数の読み方（ローマ字）がある場合
-    const primaryReading = keyMapping[0];
-    const keyElements = [`<span class="key-button">${primaryReading}</span>`];
     
-    // 複数の読みがある場合は選択肢として表示
-    if (keyMapping.length > 1) {
-      const alternativeReadings = keyMapping.slice(1, 3); // 最大3つまで表示
-      const altElements = alternativeReadings.map(reading => 
-        `<span class="key-button alternative">${reading}</span>`
-      );
-      keyDisplay.innerHTML = keyElements.concat(altElements).join('<span class="key-or"> or </span>');
-    } else {
-      keyDisplay.innerHTML = keyElements[0];
+    if (!practiceText) {
+      keyDisplay.innerHTML = '<span style="color: #dc3545;">テキストが読み込まれていません</span>';
+      return;
     }
-    return;
-  }
-  
-  // 通常のキーマッピング（キーの組み合わせ）の場合
-  const keyElements = keyMapping.map(key => {
-    return `<span class="key-button">${key}</span>`;
-  });
-  
-  if (keyElements.length === 1) {
-    // 単一キーの場合
-    keyDisplay.innerHTML = keyElements[0];
-  } else {
-    // 複数キーの組み合わせの場合（例：Shift + R）
-    keyDisplay.innerHTML = keyElements.join('<span class="key-plus"> + </span>');
+    
+    // 練習が完了している場合
+    if (userInput.length >= practiceText.length) {
+      keyDisplay.innerHTML = '<span style="color: #28a745; font-weight: bold;">完了！</span>';
+      if (inputModeIndicator) {
+        inputModeIndicator.innerHTML = '';
+      }
+      return;
+    }
+    
+    // 現在入力すべき文字を取得
+    const currentChar = practiceText[userInput.length];
+    if (currentChar === undefined) {
+      keyDisplay.innerHTML = '<span style="color: #dc3545;">文字が見つかりません</span>';
+      return;
+    }
+    
+    // 入力モード表示を更新
+    updateInputModeDisplay(currentChar);
+    
+    // 既存のキーマッピングを取得
+    const keyMapping = jisKeyMap[currentChar];
+    
+    if (!keyMapping) {
+      // マッピングが見つからない場合
+      const escapedChar = currentChar.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      keyDisplay.innerHTML = `<span style="color: #dc3545;">「${escapedChar}」</span>`;
+      return;
+    }
+    
+    // 複数の読み方がある場合の処理（例：しゃ → ['sha', 'sya']）
+    if (Array.isArray(keyMapping) && keyMapping.length > 1 && keyMapping.every(item => typeof item === 'string' && item.length > 1)) {
+      // 複数の読み方（ローマ字）がある場合
+      const primaryReading = keyMapping[0];
+      const keyElements = [`<span class="key-button">${primaryReading}</span>`];
+      
+      // 複数の読みがある場合は選択肢として表示
+      if (keyMapping.length > 1) {
+        const alternativeReadings = keyMapping.slice(1, 3); // 最大3つまで表示
+        const altElements = alternativeReadings.map(reading => 
+          `<span class="key-button alternative">${reading}</span>`
+        );
+        keyDisplay.innerHTML = keyElements.concat(altElements).join('<span class="key-or"> or </span>');
+      } else {
+        keyDisplay.innerHTML = keyElements[0];
+      }
+      return;
+    }
+    
+    // 通常のキーマッピング（キーの組み合わせ）の場合
+    const keyElements = keyMapping.map(key => {
+      const escapedKey = key.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return `<span class="key-button">${escapedKey}</span>`;
+    });
+    
+    if (keyElements.length === 1) {
+      // 単一キーの場合
+      keyDisplay.innerHTML = keyElements[0];
+    } else {
+      // 複数キーの組み合わせの場合（例：Shift + R）
+      keyDisplay.innerHTML = keyElements.join('<span class="key-plus"> + </span>');
+    }
+  } catch (error) {
+    console.error('キー表示更新でエラーが発生しました:', error);
+    if (keyDisplay) {
+      keyDisplay.innerHTML = '<span style="color: #dc3545;">エラーが発生しました</span>';
+    }
   }
 }
 
 // ---- 現在の文字へスクロール ---- //
 function scrollToCurrentChar(spanElements) {
-  if (userInput.length < practiceText.length && spanElements[userInput.length]) {
+  try {
+    if (!spanElements || userInput.length >= practiceText.length) {
+      return;
+    }
+    
     const targetElement = spanElements[userInput.length];
+    if (!targetElement) {
+      return;
+    }
+    
     const container = textDisplay.parentElement; // typing-area
+    if (!container) {
+      console.warn('スクロールコンテナが見つかりません');
+      return;
+    }
     
     // 要素の位置を取得
     const elementRect = targetElement.getBoundingClientRect();
     const containerRect = container.getBoundingClientRect();
     
-    // コンテナの中央に要素が来るようにスクロール位置を計算
-    const scrollTop = container.scrollTop + (elementRect.top - containerRect.top) - (container.clientHeight / 2) + (elementRect.height / 2);
+    // 要素がコンテナの表示範囲内にあるかチェック
+    const isElementVisible = (
+      elementRect.top >= containerRect.top &&
+      elementRect.bottom <= containerRect.bottom
+    );
     
-    // スムーズスクロール
-    container.scrollTo({
-      top: Math.max(0, scrollTop),
-      behavior: 'smooth'
-    });
+    // 要素が見えない場合のみスクロール
+    if (!isElementVisible) {
+      // コンテナの中央に要素が来るようにスクロール位置を計算
+      const scrollTop = container.scrollTop + (elementRect.top - containerRect.top) - (container.clientHeight / 2) + (elementRect.height / 2);
+      
+      // スムーズスクロール
+      container.scrollTo({
+        top: Math.max(0, scrollTop),
+        behavior: 'smooth'
+      });
+    }
+  } catch (error) {
+    console.error('スクロール処理でエラーが発生しました:', error);
   }
 }
 
@@ -830,6 +1002,14 @@ function playSound(type) {
   // Web Audio APIを使用して簡単なビープ音を生成
   try {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // AudioContextが無効な場合は早期リターン
+    if (audioContext.state === 'suspended') {
+      audioContext.resume().catch(() => {
+        // AudioContext の resume に失敗した場合は静かに失敗
+      });
+    }
+    
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     
@@ -848,8 +1028,18 @@ function playSound(type) {
     
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.1);
+    
+    // AudioContextを適切にクリーンアップ
+    setTimeout(() => {
+      try {
+        audioContext.close();
+      } catch (e) {
+        // クリーンアップエラーは無視
+      }
+    }, 200);
   } catch (error) {
     // サウンド再生に失敗してもエラーを表示しない
+    console.debug('サウンド再生に失敗:', error.message);
   }
 }
 
@@ -893,14 +1083,63 @@ function toggleStatsVisibility() {
   }
 }
 
+// ---- エラーハンドリング設定 ---- //
+function setupErrorHandling() {
+  // グローバルエラーハンドラー
+  window.addEventListener('error', (event) => {
+    console.error('グローバルエラー:', {
+      message: event.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+      error: event.error
+    });
+    
+    // ユーザーにエラーを通知（重大なエラーのみ）
+    if (event.error && event.error.name !== 'TypeError') {
+      console.warn('アプリケーションでエラーが発生しました。ファンクションの一部が動作しない可能性があります。');
+    }
+  });
+  
+  // Promiseのリジェクションハンドラー
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('未処理のPromiseリジェクション:', event.reason);
+    
+    // ネットワークエラーの場合はユーザーに通知
+    if (event.reason && event.reason.message && event.reason.message.includes('fetch')) {
+      console.warn('ネットワークエラーが発生しました。インターネット接続を確認してください。');
+    }
+    
+    // エラーを処理済みとしてマーク（コンソールに表示されないように）
+    event.preventDefault();
+  });
+}
+
+// ---- タイピングエリアのスクロール位置をリセット ---- //
+function resetScrollPosition() {
+  try {
+    const typingArea = document.querySelector('.typing-area');
+    if (typingArea) {
+      typingArea.scrollTop = 0;
+      typingArea.scrollLeft = 0;
+    }
+  } catch (error) {
+    console.error('スクロールリセットエラー:', error);
+  }
+}
+
 // ---- アプリ初期化 ---- //
 window.addEventListener("DOMContentLoaded", function() {
   console.log("🚀 Trace Type アプリケーションを読み込み中...");
   
-  loadFileList();
-  initializeDarkMode();
-  initializeLowResolutionLayout();
-  setupMouseClickTracking();
-  
-  console.log("✅ アプリケーションの初期化が完了しました！");
+  try {
+    loadFileList();
+    initializeDarkMode();
+    initializeLowResolutionLayout();
+    setupMouseClickTracking();
+    
+    console.log("✅ アプリケーションの初期化が完了しました！");
+  } catch (error) {
+    console.error('アプリ初期化エラー:', error);
+  }
 });

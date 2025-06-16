@@ -19,7 +19,7 @@
           <h3>Created by Dit-Lab.（Daiki ITO）</h3>
         </div>
         <div class="header-controls">
-          <button id="dark-mode-toggle" class="theme-toggle" title="ダークモード切り替え">
+          <button id="dark-mode-toggle" class="theme-toggle" title="ダークモード切り替え" aria-label="ダークモード切り替え">
             <span class="theme-icon" id="theme-icon">🌙</span>
           </button>
         </div>
@@ -36,10 +36,11 @@
     <!-- ファイル選択エリア -->
     <section class="selector">
       <label for="file-select">練習テキストを選択：</label>
-      <select id="file-select" disabled>
+      <select id="file-select" disabled aria-label="練習テキスト選択">
+        <option value="">ファイルを選択してください...</option>
         <!-- JS がここに option を追加 -->
       </select>
-      <button id="start-btn" disabled>スタート</button>
+      <button id="start-btn" disabled aria-label="タイピング練習を開始">スタート</button>
     </section>
 
     <!-- キー表示エリア -->
@@ -65,6 +66,9 @@
         placeholder=""
         disabled
         spellcheck="false"
+        aria-label="タイピング入力エリア"
+        role="textbox"
+        aria-multiline="true"
       ></textarea>
     </section>
 
@@ -138,7 +142,7 @@
           <div class="score-value" id="error-chars">0</div>
         </div>
       </div>
-      <button id="retry-btn" class="retry-button">もう一度</button>
+      <button id="retry-btn" class="retry-button" aria-label="タイピング練習をやり直す">もう一度</button>
     </section>
   </div>
 
