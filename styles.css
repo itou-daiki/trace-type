@@ -1,62 +1,10 @@
 /* ==================== TAILWIND CUSTOM STYLES ==================== */
 
-/* タイピング表示とインプット用の特殊スタイル */
-.text-display {
+/* 非表示の入力フィールド */
+#text-input {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: auto;
-  min-height: 100%;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 1rem;
-  line-height: 1.7;
-  color: #171717;
-  padding: 1rem;
-  z-index: 10;
-  pointer-events: none;
-  overflow: visible;
-  box-sizing: border-box;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
-
-[data-theme="dark"] .text-display {
-  color: #f5f5f5;
-}
-
-.text-input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  resize: none;
-  background: transparent;
-  color: transparent;
-  caret-color: #1e90ff;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 1rem;
-  line-height: 1.7;
-  outline: none;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  overflow: hidden;
-  padding: 1rem;
-  z-index: 5;
-  opacity: 1;
-  box-sizing: border-box;
-  scroll-behavior: smooth;
+  left: -9999px;
+  opacity: 0;
 }
 
 /* 文字状態のスタイル */
@@ -327,75 +275,32 @@
   color: #a3a3a3;
 }
 
-/* スクロールバーのスタイル */
-.typing-area::-webkit-scrollbar {
-  width: 8px;
+/* スクロールバーのスタイル（お手本テキスト用） */
+#reference-text::-webkit-scrollbar {
+  width: 6px;
 }
 
-.typing-area::-webkit-scrollbar-track {
+#reference-text::-webkit-scrollbar-track {
   background: #f5f5f5;
-  border-radius: 4px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
 }
 
-[data-theme="dark"] .typing-area::-webkit-scrollbar-track {
+[data-theme="dark"] #reference-text::-webkit-scrollbar-track {
   background: #262626;
 }
 
-.typing-area::-webkit-scrollbar-thumb {
+#reference-text::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, #1e90ff 0%, #0073e6 100%);
-  border-radius: 4px;
-  border: 1px solid #e5e5e5;
-  transition: background 0.15s ease-out;
+  border-radius: 3px;
 }
 
-[data-theme="dark"] .typing-area::-webkit-scrollbar-thumb {
-  border-color: #404040;
-}
-
-.typing-area::-webkit-scrollbar-thumb:hover {
-  background: #0073e6;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.typing-area::-webkit-scrollbar-thumb:active {
-  background: #0056b3;
-}
-
-/* Firefox スクロールバー */
-.typing-area {
+#reference-text {
   scrollbar-width: thin;
   scrollbar-color: #1e90ff #f5f5f5;
 }
 
-[data-theme="dark"] .typing-area {
+[data-theme="dark"] #reference-text {
   scrollbar-color: #1e90ff #262626;
-}
-
-/* レスポンシブ: タブレット */
-@media (max-width: 1024px) {
-  .text-display, .text-input {
-    font-size: 0.9rem;
-    line-height: 1.6;
-    padding: 0.75rem;
-  }
-}
-
-/* レスポンシブ: モバイル */
-@media (max-width: 768px) {
-  .text-display, .text-input {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    padding: 0.75rem 1rem;
-  }
-}
-
-/* レスポンシブ: 小型モバイル */
-@media (max-width: 480px) {
-  .text-display, .text-input {
-    font-size: 0.9rem;
-    padding: 0.5rem 0.75rem;
-  }
 }
 
 /* アニメーション無効化（アクセシビリティ） */
