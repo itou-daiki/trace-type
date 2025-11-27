@@ -7,19 +7,46 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#e6f3ff',
+              100: '#cce7ff',
+              200: '#99cfff',
+              300: '#66b7ff',
+              400: '#339fff',
+              500: '#1e90ff',
+              600: '#0073e6',
+              700: '#0056b3',
+              800: '#003d80',
+              900: '#00244d',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-  <div class="container">
+<body class="bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-3 py-2 min-h-screen flex flex-col">
     <!-- ヘッダー -->
-    <header>
-      <div class="header-content">
-        <div class="title-section">
-          <h1>Trace Type</h1>
-          <h3>Created by Dit-Lab.（Daiki ITO）</h3>
+    <header class="mb-2 text-center relative flex-shrink-0">
+      <div class="flex justify-center items-center relative gap-8">
+        <div class="flex-1 max-w-2xl">
+          <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary-500 to-blue-600 bg-clip-text text-transparent mb-1 tracking-tight">Trace Type</h1>
+          <h3 class="text-sm text-gray-600 dark:text-gray-400 opacity-80">Created by Dit-Lab.（Daiki ITO）</h3>
         </div>
-        <div class="header-controls">
-          <button id="dark-mode-toggle" class="theme-toggle" title="ダークモード切り替え" aria-label="ダークモード切り替え">
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 flex gap-3">
+          <button id="dark-mode-toggle" class="w-12 h-12 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md text-gray-800 dark:text-white cursor-pointer flex items-center justify-center text-xl transition-all hover:-translate-y-0.5 hover:shadow-lg border border-gray-200 dark:border-gray-700" title="ダークモード切り替え" aria-label="ダークモード切り替え">
             <span class="theme-icon" id="theme-icon">🌙</span>
           </button>
         </div>
@@ -27,32 +54,42 @@
     </header>
 
     <!-- 指示メッセージエリア -->
-    <section class="instructions">
-      <div class="instruction-item">📱 <strong class="highlight-key">マウスを使わずに</strong>タイピングしよう</div>
-      <div class="instruction-item">🔄 変換は<kbd class="key-highlight">スペースキー</kbd></div>
-      <div class="instruction-item">⭐ 予測変換は<kbd class="key-highlight">Tabキー</kbd></div>
+    <section class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-lg p-2 mb-2 shadow-lg relative overflow-hidden flex-shrink-0">
+      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-primary-500 to-blue-600"></div>
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-white/50 dark:bg-gray-700/50 backdrop-blur-md px-3 py-2 rounded-lg text-xs font-medium text-gray-800 dark:text-white border border-gray-200 dark:border-gray-600 text-center transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600 min-h-[32px] flex items-center justify-center">
+          📱 <strong class="text-primary-600 dark:text-primary-400 font-bold ml-1">マウスを使わずに</strong>タイピングしよう
+        </div>
+        <div class="bg-white/50 dark:bg-gray-700/50 backdrop-blur-md px-3 py-2 rounded-lg text-xs font-medium text-gray-800 dark:text-white border border-gray-200 dark:border-gray-600 text-center transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600 min-h-[32px] flex items-center justify-center">
+          🔄 変換は<kbd class="inline-block bg-gradient-to-r from-primary-500 to-blue-600 text-white px-2 py-1 rounded text-xs font-mono font-semibold border border-primary-400 shadow-sm mx-0.5">スペースキー</kbd>
+        </div>
+        <div class="bg-white/50 dark:bg-gray-700/50 backdrop-blur-md px-3 py-2 rounded-lg text-xs font-medium text-gray-800 dark:text-white border border-gray-200 dark:border-gray-600 text-center transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600 min-h-[32px] flex items-center justify-center">
+          ⭐ 予測変換は<kbd class="inline-block bg-gradient-to-r from-primary-500 to-blue-600 text-white px-2 py-1 rounded text-xs font-mono font-semibold border border-primary-400 shadow-sm mx-0.5">Tabキー</kbd>
+        </div>
+      </div>
     </section>
 
     <!-- ファイル選択エリア -->
-    <section class="selector">
-      <label for="file-select">練習テキストを選択：</label>
-      <select id="file-select" disabled aria-label="練習テキスト選択">
+    <section class="flex items-center gap-3 mb-2 px-4 py-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-lg shadow-md border border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <label for="file-select" class="font-semibold text-gray-800 dark:text-white text-base whitespace-nowrap">練習テキストを選択：</label>
+      <select id="file-select" disabled aria-label="練習テキスト選択" class="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-white text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
         <option value="">ファイルを選択してください...</option>
         <!-- JS がここに option を追加 -->
       </select>
-      <button id="start-btn" disabled aria-label="タイピング練習を開始">スタート</button>
+      <button id="start-btn" disabled aria-label="タイピング練習を開始" class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-blue-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed disabled:shadow-sm disabled:transform-none">スタート</button>
     </section>
 
     <!-- キー表示エリア -->
-    <section class="key-display-area">
-      <div class="key-display-label">入力すべきキー: <span id="input-mode-indicator"></span></div>
-      <div id="key-display" class="key-display"></div>
-      <div id="ime-composition-display" class="ime-composition-display"></div>
+    <section class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-2 text-center shadow-lg relative overflow-hidden flex-shrink-0">
+      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-primary-100 to-blue-200 dark:from-primary-800 dark:to-blue-900"></div>
+      <div class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-4 uppercase tracking-wide">入力すべきキー: <span id="input-mode-indicator"></span></div>
+      <div id="key-display" class="font-mono text-2xl font-semibold text-primary-600 dark:text-primary-400 min-h-[40px] flex items-center justify-center gap-3 flex-wrap"></div>
+      <div id="ime-composition-display" class="mt-3 px-4 py-2 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md border-2 border-purple-400 dark:border-purple-600 rounded-lg font-mono text-base font-semibold text-purple-600 dark:text-purple-400 text-center min-h-[35px] hidden items-center justify-center shadow-md"></div>
     </section>
 
 
     <!-- タイピングエリア -->
-    <section class="typing-area">
+    <section class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-5 flex-1 min-h-[400px] overflow-auto rounded-lg mb-2 shadow-xl border border-gray-200 dark:border-gray-700 transition-all hover:shadow-2xl">
       <!-- 背景に練習テキストを表示する領域 -->
       <div id="text-display" class="text-display"></div>
 
@@ -78,35 +115,39 @@
     </div>
 
     <!-- 進捗バー -->
-    <section class="progress-section" id="progress-section" style="display: none;">
-      <div class="progress-bar-container">
-        <div class="progress-bar" id="progress-bar"></div>
-        <div class="progress-text" id="progress-text">0%</div>
+    <section class="mb-3 flex-shrink-0" id="progress-section" style="display: none;">
+      <div class="relative bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner border border-gray-300 dark:border-gray-600">
+        <div class="progress-bar h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-400 shadow-md" id="progress-bar"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold text-gray-900 dark:text-white mix-blend-difference" id="progress-text">0%</div>
       </div>
     </section>
 
     <!-- 結果表示エリア -->
-    <section class="result-area">
-      <div class="stats-grid" id="stats-grid">
-        <div class="stat-item">
-          <span class="stat-label">経過時間</span>
-          <span class="stat-value" id="timer">0.00</span>
-          <span class="stat-unit">秒</span>
+    <section class="mb-3 flex-shrink-0">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg" id="stats-grid">
+        <div class="flex items-center justify-between px-6 py-5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-2xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-blue-600 transition-all group-hover:w-2"></div>
+          <span class="text-sm text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">経過時間</span>
+          <span class="text-2xl font-bold text-gray-900 dark:text-white font-mono mx-2" id="timer">0.00</span>
+          <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">秒</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-label">入力文字</span>
-          <span class="stat-value" id="input-chars">0</span>
-          <span class="stat-unit">文字</span>
+        <div class="flex items-center justify-between px-6 py-5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-2xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-blue-600 transition-all group-hover:w-2"></div>
+          <span class="text-sm text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">入力文字</span>
+          <span class="text-2xl font-bold text-gray-900 dark:text-white font-mono mx-2" id="input-chars">0</span>
+          <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">文字</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-label">WPM</span>
-          <span class="stat-value" id="real-time-wpm">0</span>
-          <span class="stat-unit">WPM</span>
+        <div class="flex items-center justify-between px-6 py-5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-2xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-blue-600 transition-all group-hover:w-2"></div>
+          <span class="text-sm text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">WPM</span>
+          <span class="text-2xl font-bold text-gray-900 dark:text-white font-mono mx-2" id="real-time-wpm">0</span>
+          <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">WPM</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-label">クリック</span>
-          <span class="stat-value" id="mouse-clicks">0</span>
-          <span class="stat-unit">回</span>
+        <div class="flex items-center justify-between px-6 py-5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-2xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-blue-600 transition-all group-hover:w-2"></div>
+          <span class="text-sm text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">クリック</span>
+          <span class="text-2xl font-bold text-gray-900 dark:text-white font-mono mx-2" id="mouse-clicks">0</span>
+          <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">回</span>
         </div>
       </div>
       <!-- Stats Toggle Button (only visible on low resolution) -->
@@ -114,35 +155,38 @@
     </section>
 
     <!-- スコア表示エリア -->
-    <section class="score-area" id="score-area" style="display: none;">
-      <h2>タイピング結果</h2>
-      <div class="score-grid">
-        <div class="score-item">
-          <div class="score-label">WPM</div>
-          <div class="score-value" id="wpm-score">0</div>
+    <section class="bg-gradient-to-r from-primary-500 to-blue-600 rounded-xl p-6 mt-4 text-white text-center shadow-2xl relative overflow-hidden flex-shrink-0" id="score-area" style="display: none;">
+      <div class="absolute inset-0 opacity-10" style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;);"></div>
+      <div class="relative z-10">
+        <h2 class="text-4xl md:text-5xl mb-8 font-bold drop-shadow-lg">タイピング結果</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-12">
+          <div class="bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30 transition-all hover:-translate-y-1 hover:bg-white/30 hover:shadow-2xl">
+            <div class="text-base opacity-90 mb-4 font-medium uppercase tracking-wide">WPM</div>
+            <div class="text-5xl font-bold drop-shadow-md font-mono" id="wpm-score">0</div>
+          </div>
+          <div class="bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30 transition-all hover:-translate-y-1 hover:bg-white/30 hover:shadow-2xl">
+            <div class="text-base opacity-90 mb-4 font-medium uppercase tracking-wide">CPM</div>
+            <div class="text-5xl font-bold drop-shadow-md font-mono" id="cpm-score">0</div>
+          </div>
+          <div class="bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30 transition-all hover:-translate-y-1 hover:bg-white/30 hover:shadow-2xl">
+            <div class="text-base opacity-90 mb-4 font-medium uppercase tracking-wide">正確率</div>
+            <div class="text-5xl font-bold drop-shadow-md font-mono" id="accuracy-score">0%</div>
+          </div>
+          <div class="bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30 transition-all hover:-translate-y-1 hover:bg-white/30 hover:shadow-2xl">
+            <div class="text-base opacity-90 mb-4 font-medium uppercase tracking-wide">総文字数</div>
+            <div class="text-5xl font-bold drop-shadow-md font-mono" id="total-chars">0</div>
+          </div>
+          <div class="bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30 transition-all hover:-translate-y-1 hover:bg-white/30 hover:shadow-2xl">
+            <div class="text-base opacity-90 mb-4 font-medium uppercase tracking-wide">正解数</div>
+            <div class="text-5xl font-bold drop-shadow-md font-mono" id="correct-chars">0</div>
+          </div>
+          <div class="bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30 transition-all hover:-translate-y-1 hover:bg-white/30 hover:shadow-2xl">
+            <div class="text-base opacity-90 mb-4 font-medium uppercase tracking-wide">誤字数</div>
+            <div class="text-5xl font-bold drop-shadow-md font-mono" id="error-chars">0</div>
+          </div>
         </div>
-        <div class="score-item">
-          <div class="score-label">CPM</div>
-          <div class="score-value" id="cpm-score">0</div>
-        </div>
-        <div class="score-item">
-          <div class="score-label">正確率</div>
-          <div class="score-value" id="accuracy-score">0%</div>
-        </div>
-        <div class="score-item">
-          <div class="score-label">総文字数</div>
-          <div class="score-value" id="total-chars">0</div>
-        </div>
-        <div class="score-item">
-          <div class="score-label">正解数</div>
-          <div class="score-value" id="correct-chars">0</div>
-        </div>
-        <div class="score-item">
-          <div class="score-label">誤字数</div>
-          <div class="score-value" id="error-chars">0</div>
-        </div>
+        <button id="retry-btn" class="bg-white/20 border-2 border-white/30 text-white px-10 py-4 rounded-2xl text-lg font-semibold cursor-pointer transition-all backdrop-blur-md hover:bg-white/30 hover:border-white/50 hover:-translate-y-1 hover:shadow-2xl active:-translate-y-0" aria-label="タイピング練習をやり直す">もう一度</button>
       </div>
-      <button id="retry-btn" class="retry-button" aria-label="タイピング練習をやり直す">もう一度</button>
     </section>
   </div>
 

@@ -745,11 +745,11 @@ function hideImeCompositionKeyDisplay() {
 // ---- 入力モード表示を更新 ---- //
 function updateInputModeDisplay(currentChar) {
   if (!inputModeIndicator) return;
-  
+
   // 文字種別を判定
   let mode = '';
   if (/[a-zA-Z0-9\s\[\]{}();:'",.!?@#$%^&*\-=_+\\|`~<>/]/.test(currentChar)) {
-    mode = '<span style="color: #0ea5e9; font-weight: 600;">[半角]</span>';
+    mode = '<span style="color: #1e90ff; font-weight: 600;">[半角]</span>';
   } else if (/[あ-んア-ンー々〇〻]/.test(currentChar)) {
     mode = '<span style="color: #c955f0; font-weight: 600;">[全角]</span>';
   } else if (/[、。「」『』（）【】〈〉《》〔〕［］｛｝〜・…‥！？：；]/.test(currentChar)) {
@@ -757,7 +757,7 @@ function updateInputModeDisplay(currentChar) {
   } else {
     mode = '<span style="color: #ef4444; font-weight: 600;">[その他]</span>';
   }
-  
+
   inputModeIndicator.innerHTML = mode;
 }
 
