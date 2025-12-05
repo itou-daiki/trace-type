@@ -821,10 +821,26 @@ function updateKeyDisplay() {
 
     // 現在入力すべき文字を取得
     const currentChar = practiceText[userInput.length];
-    if (currentChar === undefined) {
-      keyDisplay.innerHTML = '<span style="color: #dc3545;">文字が見つかりません</span>';
+
+    // 漢字かどうかを判定 (簡易的な判定: 漢字範囲または読み仮名が必要そうなもの)
+    // CJK Unified Ideographs range: \u4e00-\u9faf
+    const isKanji = /[\u4e00-\u9faf]/.test(currentChar);
+
+    if (isKanji) {
+      keyDisplay.innerHTML = '';
+      if (inputModeIndicator) {
+        inputModeIndicator.parentElement.style.visibility = 'hidden';
+      }
       return;
+    } else {
+      if (inputModeIndicator) {
+        inputModeIndicator.parentElement.style.visibility = 'visible';
+      }
     }
+
+    // 表示モード更新
+    updateInputModeDisplay(currentChar);
+
 
     // 入力モード表示を更新
     updateInputModeDisplay(currentChar);
