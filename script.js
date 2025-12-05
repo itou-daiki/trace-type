@@ -285,8 +285,11 @@ function resetTypingArea() {
       setTimeout(() => {
         if (textInput && !textInput.disabled) {
           textInput.focus();
+          console.log('Input focused after reset');
         }
       }, 100);
+      // 即座にもフォーカスを試みる
+      textInput.focus();
     }
     
     // マウスクリック回数をリセット
@@ -423,7 +426,7 @@ function activateTyping() {
   startTime = Date.now();
   // 100ms ごとにタイマーを更新
   timerInterval = setInterval(updateTimer, 100);
-  
+
   // 進捗バーを表示
   if (progressSection) {
     progressSection.style.display = "block";
@@ -434,17 +437,25 @@ function activateTyping() {
   textInput.removeEventListener("keydown", onKeyDown);
   textInput.addEventListener("input", onUserInput);
   textInput.addEventListener("keydown", onKeyDown);
-  
+
   // 初期進捗更新
   updateProgressBar();
-  
+
   // 初期入力文字数表示
   updateInputCharsDisplay();
-  
+
   // IME変換イベントを監視
   textInput.addEventListener("compositionstart", onCompositionStart);
   textInput.addEventListener("compositionupdate", onCompositionUpdate);
   textInput.addEventListener("compositionend", onCompositionEnd);
+
+  // 確実にフォーカスを当てる
+  setTimeout(() => {
+    if (textInput && !textInput.disabled) {
+      textInput.focus();
+      console.log('Input focused in activateTyping');
+    }
+  }, 150);
 }
 
 // ---- ユーザーの入力を反映 ---- //
@@ -634,6 +645,10 @@ function onMouseClick() {
   if (startTime && !textInput.disabled) {
     mouseClickCount++;
     updateMouseClickDisplay();
+    // クリック時にinputにフォーカスを当てる
+    if (textInput && !textInput.disabled) {
+      textInput.focus();
+    }
   }
 }
 
