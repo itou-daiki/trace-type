@@ -587,21 +587,9 @@ function onKeyDown(e) {
     e.preventDefault();
     return;
   }
-  
-  // 記号入力のサポート
-  const allowedPunctuations = ["、", "。"];
-  if (key.length === 1 && !/\w|\s/.test(key)) {
-    if (!allowedPunctuations.includes(key)) {
-      e.preventDefault();
-      showPunctuationHelp();
-      return;
-    }
-  }
-}
 
-// ---- 記号入力サポート用のポップアップ ---- //
-function showPunctuationHelp() {
-  // 不要な表示を削除
+  // 記号入力は全て許可（IME経由での入力を含む）
+  // jisKeyMapに定義されている記号は全て入力可能
 }
 
 // ---- タイピング完了時の処理 ---- //
