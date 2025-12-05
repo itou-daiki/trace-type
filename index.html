@@ -89,6 +89,24 @@
 
           <div class="text-sm text-gray-600 dark:text-gray-300 mb-2 font-semibold uppercase tracking-wide">入力すべきキー: <span id="input-mode-indicator"></span></div>
           <div id="key-display" class="font-mono text-3xl font-semibold text-primary-600 dark:text-primary-400 min-h-[50px] flex items-center justify-center gap-4 flex-wrap"></div>
+
+          <!-- 入力フィールド（可視化） -->
+          <div class="mt-6">
+            <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold uppercase tracking-wide">入力中</div>
+            <input
+              type="text"
+              id="text-input"
+              class="w-full max-w-2xl mx-auto px-6 py-4 border-2 border-primary-300 dark:border-primary-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-2xl font-mono text-center transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              disabled
+              spellcheck="false"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              aria-label="タイピング入力"
+              placeholder="ここに入力します..."
+            />
+          </div>
+
           <div id="ime-composition-display" class="mt-4 px-4 py-2 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md border-2 border-purple-400 dark:border-purple-600 rounded-lg font-mono text-lg font-semibold text-purple-600 dark:text-purple-400 text-center min-h-[40px] hidden items-center justify-center shadow-md"></div>
         </div>
       </section>
@@ -104,19 +122,6 @@
         <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold uppercase tracking-wide">入力済み</div>
         <div id="typed-text-display" class="font-mono text-lg leading-relaxed min-h-[80px] whitespace-pre-wrap break-words"></div>
       </section>
-
-      <!-- 非表示の入力フィールド -->
-      <input
-        type="text"
-        id="text-input"
-        class="absolute opacity-0 pointer-events-none"
-        disabled
-        spellcheck="false"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        aria-label="タイピング入力"
-      />
 
       <!-- IME Preview Area -->
       <div id="ime-preview" class="ime-preview"></div>
