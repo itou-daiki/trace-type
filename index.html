@@ -79,35 +79,48 @@
       <button id="start-btn" disabled aria-label="タイピング練習を開始" class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-blue-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed disabled:shadow-sm disabled:transform-none">スタート</button>
     </section>
 
-    <!-- キー表示エリア -->
-    <section class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-2 text-center shadow-lg relative overflow-hidden flex-shrink-0">
-      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-primary-100 to-blue-200 dark:from-primary-800 dark:to-blue-900"></div>
-      <div class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-4 uppercase tracking-wide">入力すべきキー: <span id="input-mode-indicator"></span></div>
-      <div id="key-display" class="font-mono text-2xl font-semibold text-primary-600 dark:text-primary-400 min-h-[40px] flex items-center justify-center gap-3 flex-wrap"></div>
-      <div id="ime-composition-display" class="mt-3 px-4 py-2 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md border-2 border-purple-400 dark:border-purple-600 rounded-lg font-mono text-base font-semibold text-purple-600 dark:text-purple-400 text-center min-h-[35px] hidden items-center justify-center shadow-md"></div>
-    </section>
+    <!-- タイピングエリア：トレース型レイアウト -->
+    <div class="flex-1 flex flex-col gap-3 mb-2">
+      <!-- お手本テキスト表示エリア（上部） -->
+      <section class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md">
+        <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold uppercase tracking-wide">お手本テキスト</div>
+        <div id="reference-text" class="font-mono text-lg leading-relaxed text-gray-600 dark:text-gray-400 max-h-32 overflow-auto whitespace-pre-wrap break-words"></div>
+      </section>
 
+      <!-- 現在の文字 + キーガイド（中央・大きく表示） -->
+      <section class="bg-gradient-to-br from-primary-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 p-8 rounded-xl border-2 border-primary-300 dark:border-primary-700 shadow-xl">
+        <div class="text-center">
+          <div class="text-sm text-gray-600 dark:text-gray-400 mb-3 font-semibold">次の文字</div>
+          <div id="current-char-display" class="text-8xl font-bold text-primary-600 dark:text-primary-400 mb-6 min-h-[120px] flex items-center justify-center font-mono"></div>
 
-    <!-- タイピングエリア -->
-    <section class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-5 flex-1 min-h-[400px] overflow-auto rounded-lg mb-2 shadow-xl border border-gray-200 dark:border-gray-700 transition-all hover:shadow-2xl">
-      <!-- 背景に練習テキストを表示する領域 -->
-      <div id="text-display" class="text-display"></div>
+          <div class="text-sm text-gray-600 dark:text-gray-300 mb-2 font-semibold uppercase tracking-wide">入力すべきキー: <span id="input-mode-indicator"></span></div>
+          <div id="key-display" class="font-mono text-3xl font-semibold text-primary-600 dark:text-primary-400 min-h-[50px] flex items-center justify-center gap-4 flex-wrap"></div>
+          <div id="ime-composition-display" class="mt-4 px-4 py-2 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md border-2 border-purple-400 dark:border-purple-600 rounded-lg font-mono text-lg font-semibold text-purple-600 dark:text-purple-400 text-center min-h-[40px] hidden items-center justify-center shadow-md"></div>
+        </div>
+      </section>
+
+      <!-- 入力済みテキスト表示エリア（下部） -->
+      <section class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md">
+        <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold uppercase tracking-wide">入力済み</div>
+        <div id="typed-text-display" class="font-mono text-lg leading-relaxed min-h-[80px] whitespace-pre-wrap break-words"></div>
+      </section>
+
+      <!-- 非表示の入力フィールド -->
+      <input
+        type="text"
+        id="text-input"
+        class="absolute opacity-0 pointer-events-none"
+        disabled
+        spellcheck="false"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        aria-label="タイピング入力"
+      />
 
       <!-- IME Preview Area -->
       <div id="ime-preview" class="ime-preview"></div>
-
-      <!-- キー入力を受け取る透明テキストエリア -->
-      <textarea
-        id="text-input"
-        class="text-input"
-        placeholder=""
-        disabled
-        spellcheck="false"
-        aria-label="タイピング入力エリア"
-        role="textbox"
-        aria-multiline="true"
-      ></textarea>
-    </section>
+    </div>
 
     <!-- IME Status Indicator -->
     <div id="ime-indicator" class="ime-indicator">

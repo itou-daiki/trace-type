@@ -99,7 +99,9 @@ const jisKeyMap = {
 // DOM 要素を取得
 const fileSelect  = document.getElementById("file-select");
 const startBtn    = document.getElementById("start-btn");
-const textDisplay = document.getElementById("text-display");
+const referenceText = document.getElementById("reference-text");
+const currentCharDisplay = document.getElementById("current-char-display");
+const typedTextDisplay = document.getElementById("typed-text-display");
 const textInput   = document.getElementById("text-input");
 const timerSpan   = document.getElementById("timer");
 const mouseClicksSpan = document.getElementById("mouse-clicks");
@@ -123,8 +125,9 @@ window.addEventListener("DOMContentLoaded", () => {
     
     // DOM要素の存在確認
     const requiredElements = [
-      'file-select', 'start-btn', 'text-display', 'text-input', 
-      'timer', 'mouse-clicks', 'input-chars', 'key-display'
+      'file-select', 'start-btn', 'reference-text', 'current-char-display',
+      'typed-text-display', 'text-input', 'timer', 'mouse-clicks',
+      'input-chars', 'key-display'
     ];
     
     const missingElements = requiredElements.filter(id => !document.getElementById(id));
@@ -259,9 +262,14 @@ function resetTypingArea() {
     startTime = null;
     
     // テキスト表示をクリア
-    if (textDisplay) {
-      textDisplay.innerHTML = "";
-      textDisplay.classList.remove('loading');
+    if (referenceText) {
+      referenceText.textContent = "";
+    }
+    if (currentCharDisplay) {
+      currentCharDisplay.textContent = "";
+    }
+    if (typedTextDisplay) {
+      typedTextDisplay.innerHTML = "";
     }
     
     // 入力エリアをリセット
@@ -294,10 +302,7 @@ function resetTypingArea() {
     if (realTimeWpmSpan) {
       realTimeWpmSpan.textContent = "0";
     }
-    
-    // スクロール位置をリセット
-    resetScrollPosition();
-    
+
     // IME状態をリセット
     isComposing = false;
     hideImeIndicator();
@@ -310,75 +315,92 @@ function resetTypingArea() {
 }
 
 
-// ---- 背景テキスト表示を更新 ---- //
+// ---- 表示を更新（トレース型レイアウト用） ---- //
 function renderDisplay() {
   try {
     if (!practiceText || practiceText.length === 0) {
       console.warn('練習テキストが設定されていません');
       return;
     }
-    
-    if (!textDisplay) {
-      console.error('テキスト表示要素が見つかりません');
-      return;
+
+    // 1. お手本テキスト全体を表示
+    if (referenceText) {
+      referenceText.textContent = practiceText;
     }
-    
-    const fragment = document.createDocumentFragment();
-    const spanElements = [];
 
-    // 文字ごとに span を作成し、色を付けていく
-    for (let i = 0; i < practiceText.length; i++) {
-      const span = document.createElement("span");
-      const char = practiceText[i];
+    // 2. 現在の文字を大きく表示
+    if (currentCharDisplay) {
+      const currentIndex = userInput.length;
+      if (currentIndex < practiceText.length) {
+        const currentChar = practiceText[currentIndex];
+        // 改行や特殊文字の場合は表示を変更
+        if (currentChar === "\n") {
+          currentCharDisplay.textContent = "↵ 改行";
+          currentCharDisplay.className = currentCharDisplay.className.replace(/text-\d+xl/, 'text-5xl');
+        } else if (currentChar === " ") {
+          currentCharDisplay.textContent = "␣ スペース";
+          currentCharDisplay.className = currentCharDisplay.className.replace(/text-\d+xl/, 'text-5xl');
+        } else if (currentChar === "\t") {
+          currentCharDisplay.textContent = "⭾ タブ";
+          currentCharDisplay.className = currentCharDisplay.className.replace(/text-\d+xl/, 'text-5xl');
+        } else {
+          currentCharDisplay.textContent = currentChar;
+          // クラスを元に戻す
+          if (!currentCharDisplay.className.includes('text-8xl')) {
+            currentCharDisplay.className = currentCharDisplay.className.replace(/text-\d+xl/, 'text-8xl');
+          }
+        }
 
-      if (i < userInput.length) {
-        // 入力済み文字
-        if (userInput[i] === char) {
+        // IME使用中のスタイル
+        if (isComposing) {
+          currentCharDisplay.classList.add('animate-pulse');
+        } else {
+          currentCharDisplay.classList.remove('animate-pulse');
+        }
+      } else {
+        currentCharDisplay.textContent = "完了！";
+        currentCharDisplay.className = currentCharDisplay.className.replace(/text-\d+xl/, 'text-6xl');
+      }
+    }
+
+    // 3. 入力済みテキストを色分けして表示
+    if (typedTextDisplay) {
+      const fragment = document.createDocumentFragment();
+
+      for (let i = 0; i < userInput.length; i++) {
+        const span = document.createElement("span");
+        const char = userInput[i];
+        const expectedChar = practiceText[i];
+
+        // 正誤判定
+        if (userInput[i] === expectedChar) {
           if (i < lockedLength) {
             span.className = "typed-locked";
           } else {
             span.className = "typed-correct";
           }
-          span.setAttribute('data-input', userInput[i]);
         } else {
           span.className = "typed-incorrect";
-          span.setAttribute('data-input', userInput[i]);
-          span.setAttribute('data-expected', char);
         }
-      } else if (i === userInput.length) {
-        // 現在入力中の文字 - IME使用中の特別スタイル
-        if (isComposing) {
-          span.className = "current-char ime-composing";
+
+        // 改行文字の処理
+        if (char === "\n") {
+          span.innerHTML = "<br/>";
+          span.style.display = "block";
         } else {
-          span.className = "current-char";
+          span.textContent = char;
         }
-      } else {
-        // 未入力文字
-        span.className = "untyped-char";
+
+        fragment.appendChild(span);
       }
 
-      // 改行文字の処理
-      if (char === "\n") {
-        span.innerHTML = "<br/>";
-        span.style.display = "block";
-        span.style.height = "1.8em";
-      } else {
-        span.textContent = char;
-      }
-
-      spanElements.push(span);
-      fragment.appendChild(span);
+      typedTextDisplay.innerHTML = "";
+      typedTextDisplay.appendChild(fragment);
     }
-
-    // 表示更新
-    textDisplay.innerHTML = "";
-    textDisplay.appendChild(fragment);
 
     // キー表示を更新
     updateKeyDisplay();
 
-    // 現在入力中の文字をスクロール表示
-    scrollToCurrentChar(spanElements);
   } catch (error) {
     console.error('表示更新でエラーが発生しました:', error);
   }
@@ -565,21 +587,9 @@ function onKeyDown(e) {
     e.preventDefault();
     return;
   }
-  
-  // 記号入力のサポート
-  const allowedPunctuations = ["、", "。"];
-  if (key.length === 1 && !/\w|\s/.test(key)) {
-    if (!allowedPunctuations.includes(key)) {
-      e.preventDefault();
-      showPunctuationHelp();
-      return;
-    }
-  }
-}
 
-// ---- 記号入力サポート用のポップアップ ---- //
-function showPunctuationHelp() {
-  // 不要な表示を削除
+  // 記号入力は全て許可（IME経由での入力を含む）
+  // jisKeyMapに定義されている記号は全て入力可能
 }
 
 // ---- タイピング完了時の処理 ---- //
@@ -661,40 +671,20 @@ function updateImePreview(compositionText) {
       console.warn('IMEプレビュー要素が見つかりません');
       return;
     }
-    
+
     if (compositionText && compositionText.trim()) {
       preview.textContent = compositionText;
       preview.classList.add('visible');
-      
-      // プレビューの位置を現在の文字位置に調整（キー表示エリアと被らないように）
-      const currentCharSpan = textDisplay ? textDisplay.querySelector('.current-char') : null;
-      const keyDisplayArea = document.querySelector('.key-display-area');
-      
-      if (currentCharSpan && keyDisplayArea) {
-        const rect = currentCharSpan.getBoundingClientRect();
-        const containerRect = textDisplay.getBoundingClientRect();
-        const keyDisplayRect = keyDisplayArea.getBoundingClientRect();
-        
-        // 基本位置を設定
-        let left = Math.max(0, rect.left - containerRect.left);
-        let top = -80; // デフォルトは上に表示
-        
-        // キー表示エリアと重なる場合は下に表示
-        if (rect.top - 80 < keyDisplayRect.bottom + 20) {
-          top = 40; // 下に表示
-          preview.classList.add('position-bottom');
-          preview.classList.remove('position-top');
-        } else {
-          preview.classList.add('position-top');
-          preview.classList.remove('position-bottom');
-        }
-        
-        // 画面端でのはみ出しを防ぐ
-        const maxLeft = containerRect.width - preview.offsetWidth;
-        left = Math.min(left, Math.max(0, maxLeft));
-        
-        preview.style.left = left + 'px';
-        preview.style.top = top + 'px';
+
+      // 現在の文字表示エリアの中央に配置
+      if (currentCharDisplay) {
+        const rect = currentCharDisplay.getBoundingClientRect();
+        const containerRect = currentCharDisplay.parentElement.getBoundingClientRect();
+
+        // 中央に配置
+        const left = (containerRect.width - preview.offsetWidth) / 2;
+        preview.style.left = Math.max(20, left) + 'px';
+        preview.style.top = '-60px';
       }
     } else {
       preview.classList.remove('visible');
@@ -843,49 +833,7 @@ function updateKeyDisplay() {
   }
 }
 
-// ---- 現在の文字へスクロール ---- //
-function scrollToCurrentChar(spanElements) {
-  try {
-    if (!spanElements || userInput.length >= practiceText.length) {
-      return;
-    }
-    
-    const targetElement = spanElements[userInput.length];
-    if (!targetElement) {
-      return;
-    }
-    
-    const container = textDisplay.parentElement; // typing-area
-    if (!container) {
-      console.warn('スクロールコンテナが見つかりません');
-      return;
-    }
-    
-    // 要素の位置を取得
-    const elementRect = targetElement.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    
-    // 要素がコンテナの表示範囲内にあるかチェック
-    const isElementVisible = (
-      elementRect.top >= containerRect.top &&
-      elementRect.bottom <= containerRect.bottom
-    );
-    
-    // 要素が見えない場合のみスクロール
-    if (!isElementVisible) {
-      // コンテナの中央に要素が来るようにスクロール位置を計算
-      const scrollTop = container.scrollTop + (elementRect.top - containerRect.top) - (container.clientHeight / 2) + (elementRect.height / 2);
-      
-      // スムーズスクロール
-      container.scrollTo({
-        top: Math.max(0, scrollTop),
-        behavior: 'smooth'
-      });
-    }
-  } catch (error) {
-    console.error('スクロール処理でエラーが発生しました:', error);
-  }
-}
+// スクロール関数は不要（新しいレイアウトでは使用しない）
 
 // ---- スコア計算・表示関数 ---- //
 function calculateAndDisplayScore(elapsedSeconds) {
@@ -1115,18 +1063,7 @@ function setupErrorHandling() {
   });
 }
 
-// ---- タイピングエリアのスクロール位置をリセット ---- //
-function resetScrollPosition() {
-  try {
-    const typingArea = document.querySelector('.typing-area');
-    if (typingArea) {
-      typingArea.scrollTop = 0;
-      typingArea.scrollLeft = 0;
-    }
-  } catch (error) {
-    console.error('スクロールリセットエラー:', error);
-  }
-}
+// スクロールリセット関数は不要（新しいレイアウトでは使用しない）
 
 // ---- アプリ初期化 ---- //
 window.addEventListener("DOMContentLoaded", function() {
