@@ -449,10 +449,50 @@ textarea:focus-visible {
 
 /* Inline IME Composition */
 .ime-composing-char {
-  color: #f97316;
-  /* Orange 500 */
+  color: #f97316 !important;
+  /* Force visibility over transparent parent */
   border-bottom: 2px solid #f97316;
-  background: rgba(249, 115, 22, 0.1);
+  background: rgba(249, 115, 22, 0.2);
+  /* Slightly darker background */
+  z-index: 10;
+  position: relative;
+}
+
+[data-theme="dark"] .ime-composing-char {
+  color: #fb923c !important;
+  border-bottom-color: #fb923c;
+  background: rgba(251, 146, 60, 0.2);
+}
+
+/* Return Mark for visible newlines */
+.return-mark {
+  font-family: sans-serif;
+  /* Distinct font for symbol */
+  font-size: 0.8em;
+  margin-left: 4px;
+  vertical-align: middle;
+  opacity: 0.5;
+}
+
+.return-mark.correct {
+  color: #059669;
+  /* Match typed-char-correct */
+  opacity: 1;
+}
+
+.return-mark.incorrect {
+  color: #dc2626;
+  /* Match typed-char-incorrect */
+  opacity: 1;
+}
+
+.return-mark.untyped {
+  color: #94a3b8;
+  /* Match ref-layer roughly */
+}
+
+[data-theme="dark"] .return-mark.untyped {
+  color: #475569;
 }
 
 [data-theme="dark"] .ime-composing-char {

@@ -480,12 +480,39 @@ function renderDisplay() {
           if (inputChar === refChar) {
             span.className = 'typed-char-correct';
           } else {
-            // 間違った場合も、お手本の文字を赤く表示して「上書き」感を出す
-            // ユーザーが打った文字を表示したい場合は別ロジックが必要だが、
-            // トレース型（なぞり書き）ならお手本の色を変えるのが一般的
             span.className = 'typed-char-incorrect';
           }
           typedLayer.appendChild(span);
+        }
+      }
+
+      // 改行文字の処理 (最終行以外)
+      if (!isLastLine) {
+        // お手本レイヤーに改行マークを表示するためのスペース確保（必要なら）
+        // オーバーレイなので、typed-layer 側にのみ表示または両方に表示
+
+        // お手本の方にもうっすらマークを出す
+        const refReturn = document.createElement('span');
+        refReturn.textContent = '↵';
+        refReturn.className = 'return-mark untyped';
+        refLayer.appendChild(refReturn);
+
+        // ユーザー入力の改行判定
+        // lineInputの長さが lineLine (text + 1) と同じなら改行まで入力済み
+        if (lineInput.length === lineLength) {
+          const returnSpan = document.createElement('span');
+          returnSpan.textContent = '↵';
+          // 改行コード自体の正誤判定は、userInputの該当箇所が \n かどうか
+          // lineInput の最後が \n であることはほぼ確定だが念のため
+          const inputChar = lineInput[lineInput.length - 1]; // The \n
+          const refChar = '\n';
+
+          if (inputChar === refChar) {
+            returnSpan.className = 'return-mark correct';
+          } else {
+            returnSpan.className = 'return-mark incorrect';
+          }
+          typedLayer.appendChild(returnSpan);
         }
       }
 
