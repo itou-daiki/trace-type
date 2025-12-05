@@ -784,52 +784,7 @@ function updateKeyDisplay() {
   // キーガイド機能は削除されたため、何もしない
 }
 
-if (!keyMapping) {
-  // マッピングが見つからない場合
-  const escapedChar = currentChar.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  keyDisplay.innerHTML = `<span style="color: #dc3545;">「${escapedChar}」</span>`;
-  return;
-}
 
-// 複数の読み方がある場合の処理（例：しゃ → ['sha', 'sya']）
-if (Array.isArray(keyMapping) && keyMapping.length > 1 && keyMapping.every(item => typeof item === 'string' && item.length > 1)) {
-  // 複数の読み方（ローマ字）がある場合
-  const primaryReading = keyMapping[0];
-  const keyElements = [`<span class="key-button">${primaryReading}</span>`];
-
-  // 複数の読みがある場合は選択肢として表示
-  if (keyMapping.length > 1) {
-    const alternativeReadings = keyMapping.slice(1, 3); // 最大3つまで表示
-    const altElements = alternativeReadings.map(reading =>
-      `<span class="key-button alternative">${reading}</span>`
-    );
-    keyDisplay.innerHTML = keyElements.concat(altElements).join('<span class="key-or"> or </span>');
-  } else {
-    keyDisplay.innerHTML = keyElements[0];
-  }
-  return;
-}
-
-// 通常のキーマッピング（キーの組み合わせ）の場合
-const keyElements = keyMapping.map(key => {
-  const escapedKey = key.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  return `<span class="key-button">${escapedKey}</span>`;
-});
-
-if (keyElements.length === 1) {
-  // 単一キーの場合
-  keyDisplay.innerHTML = keyElements[0];
-} else {
-  // 複数キーの組み合わせの場合（例：Shift + R）
-  keyDisplay.innerHTML = keyElements.join('<span class="key-plus"> + </span>');
-}
-  } catch (error) {
-  console.error('キー表示更新でエラーが発生しました:', error);
-  if (keyDisplay) {
-    keyDisplay.innerHTML = '<span style="color: #dc3545;">エラーが発生しました</span>';
-  }
-}
-}
 
 // スクロール関数は不要（新しいレイアウトでは使用しない）
 

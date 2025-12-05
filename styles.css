@@ -52,33 +52,33 @@
   border-color: #339fff !important;
 }
 
+/* Cursor Blink Variables */
+.current-char {
+  --blink-bg-1: #cce7ff;
+  --blink-border-1: #339fff;
+  --blink-bg-2: #99cfff;
+  --blink-border-2: #1e90ff;
+}
+
+[data-theme="dark"] .current-char {
+  --blink-bg-1: #003d80;
+  --blink-border-1: #339fff;
+  --blink-bg-2: #00244d;
+  --blink-border-2: #1e90ff;
+}
+
 @keyframes subtleBlink {
 
   0%,
   50% {
-    background: #cce7ff;
-    border-color: #339fff;
+    background: var(--blink-bg-1);
+    border-color: var(--blink-border-1);
   }
 
   51%,
   100% {
-    background: #99cfff;
-    border-color: #1e90ff;
-  }
-}
-
-[data-theme="dark"] @keyframes subtleBlink {
-
-  0%,
-  50% {
-    background: #003d80;
-    border-color: #339fff;
-  }
-
-  51%,
-  100% {
-    background: #00244d;
-    border-color: #1e90ff;
+    background: var(--blink-bg-2);
+    border-color: var(--blink-border-2);
   }
 }
 
