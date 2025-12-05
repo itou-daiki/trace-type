@@ -81,10 +81,22 @@
 
     <!-- タイピングエリア：トレース型レイアウト -->
     <div class="flex-1 flex flex-col gap-2 mb-2">
-      <!-- お手本テキスト表示エリア（最上部） -->
-      <section class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md">
-        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-semibold uppercase tracking-wide">お手本テキスト</div>
-        <div id="reference-text" class="font-mono text-base leading-relaxed text-gray-600 dark:text-gray-400 max-h-28 overflow-auto whitespace-pre-wrap break-words"></div>
+      <!-- お手本テキスト & 入力済みテキスト統合エリア -->
+      <section class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md">
+        <!-- お手本テキスト -->
+        <div class="mb-3">
+          <div class="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-semibold uppercase tracking-wide">お手本テキスト</div>
+          <div id="reference-text" class="font-mono text-base leading-relaxed text-gray-600 dark:text-gray-400 max-h-28 overflow-auto whitespace-pre-wrap break-words"></div>
+        </div>
+
+        <!-- 区切り線 -->
+        <div class="border-t border-gray-300 dark:border-gray-600 my-3"></div>
+
+        <!-- 入力済みテキスト -->
+        <div>
+          <div class="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-semibold uppercase tracking-wide">入力済み</div>
+          <div id="typed-text-display" class="font-mono text-base leading-relaxed min-h-[60px] max-h-[100px] overflow-auto whitespace-pre-wrap break-words"></div>
+        </div>
       </section>
 
       <!-- 現在の文字 + キーガイド -->
@@ -115,12 +127,6 @@
           aria-label="タイピング入力"
           placeholder="ここに入力..."
         />
-      </section>
-
-      <!-- 入力済みテキスト表示エリア（下部） -->
-      <section class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md">
-        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-semibold uppercase tracking-wide">入力済み</div>
-        <div id="typed-text-display" class="font-mono text-base leading-relaxed min-h-[60px] max-h-[100px] overflow-auto whitespace-pre-wrap break-words"></div>
       </section>
 
       <!-- IME Preview Area -->
