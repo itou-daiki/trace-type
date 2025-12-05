@@ -110,6 +110,8 @@ const textInput = document.getElementById("text-input");
 const timerSpan = document.getElementById("timer");
 const mouseClicksSpan = document.getElementById("mouse-clicks");
 const inputCharsSpan = document.getElementById("input-chars");
+const scoreArea = document.getElementById("score-area");
+const retryBtn = document.getElementById("retry-btn");
 // Removed old elements: reference-text, current-char-display, typed-text-display, key-display, etc.
 
 const progressSection = document.getElementById("progress-section");
