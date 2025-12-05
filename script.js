@@ -105,24 +105,21 @@ const jisKeyMap = {
 // DOM 要素を取得
 const fileSelect = document.getElementById("file-select");
 const startBtn = document.getElementById("start-btn");
-const referenceText = document.getElementById("reference-text");
-const currentCharDisplay = document.getElementById("current-char-display");
-const typedTextDisplay = document.getElementById("typed-text-display");
+const typingContainer = document.getElementById("typing-container");
 const textInput = document.getElementById("text-input");
 const timerSpan = document.getElementById("timer");
 const mouseClicksSpan = document.getElementById("mouse-clicks");
 const inputCharsSpan = document.getElementById("input-chars");
-const keyDisplay = document.getElementById("key-display");
-const inputModeIndicator = document.getElementById("input-mode-indicator");
-const scoreArea = document.getElementById("score-area");
-const retryBtn = document.getElementById("retry-btn");
+// Removed old elements: reference-text, current-char-display, typed-text-display, key-display, etc.
+
 const progressSection = document.getElementById("progress-section");
 const progressBar = document.getElementById("progress-bar");
 const progressText = document.getElementById("progress-text");
 const realTimeWpmSpan = document.getElementById("real-time-wpm");
 const darkModeToggle = document.getElementById("dark-mode-toggle");
 const themeIcon = document.getElementById("theme-icon");
-const imeCompositionDisplay = document.getElementById("ime-composition-display");
+// No separate IME composition display needed as it is inline
+// const imeCompositionDisplay = document.getElementById("ime-composition-display");
 
 // ===== 初期化処理 ===== //
 window.addEventListener("DOMContentLoaded", () => {
@@ -131,9 +128,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
     // DOM要素の存在確認
     const requiredElements = [
-      'file-select', 'start-btn', 'reference-text', 'current-char-display',
-      'typed-text-display', 'text-input', 'timer', 'mouse-clicks',
-      'input-chars', 'key-display'
+      'file-select', 'start-btn', 'typing-container',
+      'text-input', 'timer', 'mouse-clicks',
+      'input-chars'
     ];
 
     const missingElements = requiredElements.filter(id => !document.getElementById(id));
@@ -268,15 +265,9 @@ function resetTypingArea() {
 
     startTime = null;
 
-    // テキスト表示をクリア
-    if (referenceText) {
-      referenceText.textContent = "";
-    }
-    if (currentCharDisplay) {
-      currentCharDisplay.textContent = "";
-    }
-    if (typedTextDisplay) {
-      typedTextDisplay.innerHTML = "";
+    // コンテナをクリア
+    if (typingContainer) {
+      typingContainer.innerHTML = "";
     }
 
     // 入力エリアをリセット
@@ -287,7 +278,6 @@ function resetTypingArea() {
       setTimeout(() => {
         if (textInput && !textInput.disabled) {
           textInput.focus();
-          console.log('Input focused after reset');
         }
       }, 100);
       // 即座にもフォーカスを試みる
@@ -318,112 +308,118 @@ function resetTypingArea() {
     composingText = "";
     hideImeIndicator();
     hideImePreview();
-    hideImeCompositionKeyDisplay();
 
   } catch (error) {
     console.error('タイピングエリアリセットエラー:', error);
   }
 }
 
+// ---- テキストを行に分割するヘルパー ----
+function splitTextIntoLines(text) {
+  // 単純に改行で分割
+  return text.split('\n');
+}
 
-// ---- 表示を更新（トレース型レイアウト用） ---- //
+// ---- 表示を更新（行ごとにトレース） ---- //
 function renderDisplay() {
   try {
     if (!practiceText || practiceText.length === 0) {
-      console.warn('練習テキストが設定されていません');
       return;
     }
 
-    // 1. お手本テキスト全体を表示
-    if (referenceText) {
-      referenceText.textContent = practiceText;
-    }
+    if (!typingContainer) return;
 
-    // 2. 現在の文字を大きく表示
-    if (currentCharDisplay) {
-      const currentIndex = userInput.length;
-      if (currentIndex < practiceText.length) {
-        const currentChar = practiceText[currentIndex];
-        // 改行や特殊文字の場合は表示を変更
-        if (currentChar === "\n") {
-          currentCharDisplay.textContent = "↵ 改行";
-          currentCharDisplay.className = currentCharDisplay.className.replace(/text-\d+xl/, 'text-5xl');
-        } else if (currentChar === " ") {
-          currentCharDisplay.textContent = "␣ スペース";
-          currentCharDisplay.className = currentCharDisplay.className.replace(/text-\d+xl/, 'text-5xl');
-        } else if (currentChar === "\t") {
-          currentCharDisplay.textContent = "⭾ タブ";
-          currentCharDisplay.className = currentCharDisplay.className.replace(/text-\d+xl/, 'text-5xl');
-        } else {
-          currentCharDisplay.textContent = currentChar;
-          // クラスを元に戻す
-          if (!currentCharDisplay.className.includes('text-8xl')) {
-            currentCharDisplay.className = currentCharDisplay.className.replace(/text-\d+xl/, 'text-8xl');
-          }
-        }
+    // 初回のみ、またはフルリロードが必要な場合以外は、
+    // 既存のDOMを更新する方が効率的だが、実装の単純化のため毎回再生成する
+    // (パフォーマンスに問題が出たら差分更新にする)
+    typingContainer.innerHTML = "";
 
-        // IME使用中のスタイル
-        if (isComposing) {
-          currentCharDisplay.classList.add('animate-pulse');
-        } else {
-          currentCharDisplay.classList.remove('animate-pulse');
-        }
-      } else {
-        currentCharDisplay.textContent = "完了！";
-        currentCharDisplay.className = currentCharDisplay.className.replace(/text-\d+xl/, 'text-6xl');
+    const lines = splitTextIntoLines(practiceText);
+
+    // ユーザー入力も行ごとに分割してマッピングする必要がある
+    // しかし、ユーザー入力はまだ途中かもしれない。
+    // practiceTextの行構造に合わせてユーザー入力を割り当てる。
+
+    let currentInputHeader = 0; // ユーザー入力の現在位置
+    let activeLineIndex = -1; // カーソルがある行
+
+    lines.forEach((lineText, index) => {
+      // この行に該当するユーザー入力の範囲を特定
+      // 行末には目に見えない改行文字がある（最終行以外）
+      const isLastLine = index === lines.length - 1;
+      const lineLength = lineText.length + (isLastLine ? 0 : 1); // +1 for \n
+
+      const lineInput = userInput.slice(currentInputHeader, currentInputHeader + lineLength);
+      // この行の入力が完了しているか？
+      const isLineComplete = userInput.length >= currentInputHeader + lineLength;
+
+      // アクティブ行の判定: 
+      // ユーザー入力がこの行の範囲内にある、または
+      // この行が未入力の最初の行である
+      const isLineActive = (userInput.length >= currentInputHeader && userInput.length < currentInputHeader + lineLength);
+
+      if (isLineActive) {
+        activeLineIndex = index;
       }
-    }
 
-    // 3. 入力済みテキストを色分けして表示
-    if (typedTextDisplay) {
-      const fragment = document.createDocumentFragment();
+      // 行コンテナ作成
+      const rowDiv = document.createElement('div');
+      rowDiv.className = `line-row ${isLineActive ? 'active' : ''}`;
+      rowDiv.id = `line-${index}`;
 
-      for (let i = 0; i < userInput.length; i++) {
-        const span = document.createElement("span");
-        const char = userInput[i];
-        const expectedChar = practiceText[i];
+      // 1. Reference Layer (お手本)
+      const refLayer = document.createElement('div');
+      refLayer.className = 'layer ref-layer';
+      refLayer.textContent = lineText; // 改行文字は表示されないが、line-rowの高さで制御
+      rowDiv.appendChild(refLayer);
 
-        // 正誤判定
-        if (userInput[i] === expectedChar) {
-          if (i < lockedLength) {
-            span.className = "typed-locked";
+      // 2. Typed Layer (入力済み + IME)
+      const typedLayer = document.createElement('div');
+      typedLayer.className = 'layer typed-layer';
+
+      // 入力済み文字のレンダリング
+      // lineInput には \n が含まれる可能性があるが、表示上は無視するか、brにするか
+      // ここでは1文字ずつspanを作る
+      for (let i = 0; i < lineText.length; i++) {
+        const refChar = lineText[i];
+        if (i < lineInput.length) {
+          const inputChar = lineInput[i];
+          const span = document.createElement('span');
+          span.textContent = refChar; // 表示するのは常にお手本の文字（色は変える）
+
+          if (inputChar === refChar) {
+            span.className = 'typed-char-correct';
           } else {
-            span.className = "typed-correct";
+            // 間違った場合も、お手本の文字を赤く表示して「上書き」感を出す
+            // ユーザーが打った文字を表示したい場合は別ロジックが必要だが、
+            // トレース型（なぞり書き）ならお手本の色を変えるのが一般的
+            span.className = 'typed-char-incorrect';
           }
-        } else {
-          span.className = "typed-incorrect";
+          typedLayer.appendChild(span);
         }
-
-        // 改行文字の処理
-        if (char === "\n") {
-          span.innerHTML = "<br/>";
-          span.style.display = "block";
-        } else {
-          span.textContent = char;
-        }
-
-        fragment.appendChild(span);
       }
 
-
-
-      // IME入力中の文字を表示（インライン）
-      if (isComposing && composingText) {
-        const compSpan = document.createElement("span");
+      // IME入力中の表示 (アクティブ行のみ)
+      if (isLineActive && isComposing && composingText) {
+        const compSpan = document.createElement('span');
         compSpan.textContent = composingText;
-        compSpan.className = "ime-composing-inline";
-        fragment.appendChild(compSpan);
+        compSpan.className = 'ime-composing-char';
+        typedLayer.appendChild(compSpan);
       }
 
-      typedTextDisplay.innerHTML = "";
-      typedTextDisplay.appendChild(fragment);
+      rowDiv.appendChild(typedLayer);
+      typingContainer.appendChild(rowDiv);
 
-      // 常に末尾までスクロール
-      typedTextDisplay.scrollTop = typedTextDisplay.scrollHeight;
+      currentInputHeader += lineLength;
+    });
+
+    // 自動スクロール
+    if (activeLineIndex !== -1) {
+      const activeRow = document.getElementById(`line-${activeLineIndex}`);
+      if (activeRow) {
+        activeRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
-
-    // キー表示を更新
-    updateKeyDisplay();
 
   } catch (error) {
     console.error('表示更新でエラーが発生しました:', error);
@@ -555,15 +551,15 @@ function onCompositionStart(e) {
   isComposing = true;
   composingText = ""; // 開始時にリセット
   showImeIndicator();
-  updateImeCompositionDisplay();
+  // updateImeCompositionDisplay(); // Removed
 }
 
 // ---- IME変換更新時の処理 ---- //
 function onCompositionUpdate(e) {
   composingText = e.data || '';
   updateImePreview(e.data || '');
-  updateImeCompositionDisplay();
-  updateImeCompositionKeyDisplay(e.data || '');
+  // updateImeCompositionDisplay(); // Removed
+  // updateImeCompositionKeyDisplay(e.data || ''); // Removed
 
   // インライン表示のために再描画
   renderDisplay();
@@ -575,8 +571,8 @@ function onCompositionEnd(e) {
   composingText = ""; // 確定したのでリセット
   hideImeIndicator();
   hideImePreview();
-  hideImeCompositionKeyDisplay();
-  updateImeCompositionDisplay();
+  // hideImeCompositionKeyDisplay(); // Removed
+  // updateImeCompositionDisplay(); // Removed
 
   // 変換が確定したので、入力処理を実行
   setTimeout(() => {
@@ -778,121 +774,61 @@ function hideImeCompositionKeyDisplay() {
 }
 
 
-// ---- 入力モード表示を更新 ---- //
+// ---- 入力モード表示を更新 (削除済み) ---- //
 function updateInputModeDisplay(currentChar) {
-  if (!inputModeIndicator) return;
-
-  // 文字種別を判定
-  let mode = '';
-  if (/[a-zA-Z0-9\s\[\]{}();:'",.!?@#$%^&*\-=_+\\|`~<>/]/.test(currentChar)) {
-    mode = '<span style="color: #1e90ff; font-weight: 600;">[半角]</span>';
-  } else if (/[あ-んア-ンー々〇〻]/.test(currentChar)) {
-    mode = '<span style="color: #c955f0; font-weight: 600;">[全角]</span>';
-  } else if (/[、。「」『』（）【】〈〉《》〔〕［］｛｝〜・…‥！？：；]/.test(currentChar)) {
-    mode = '<span style="color: #22c55e; font-weight: 600;">[記号]</span>';
-  } else {
-    mode = '<span style="color: #ef4444; font-weight: 600;">[その他]</span>';
-  }
-
-  inputModeIndicator.innerHTML = mode;
+  // UI簡素化のため削除
 }
 
 // ---- キー表示を更新 ---- //
 function updateKeyDisplay() {
-  try {
-    if (!keyDisplay) {
-      console.warn('キー表示要素が見つかりません');
-      return;
-    }
+  // キーガイド機能は削除されたため、何もしない
+}
 
-    if (!practiceText) {
-      keyDisplay.innerHTML = '<span style="color: #dc3545;">テキストが読み込まれていません</span>';
-      return;
-    }
+if (!keyMapping) {
+  // マッピングが見つからない場合
+  const escapedChar = currentChar.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  keyDisplay.innerHTML = `<span style="color: #dc3545;">「${escapedChar}」</span>`;
+  return;
+}
 
-    // 練習が完了している場合
-    if (userInput.length >= practiceText.length) {
-      keyDisplay.innerHTML = '<span style="color: #28a745; font-weight: bold;">完了！</span>';
-      if (inputModeIndicator) {
-        inputModeIndicator.innerHTML = '';
-      }
-      return;
-    }
+// 複数の読み方がある場合の処理（例：しゃ → ['sha', 'sya']）
+if (Array.isArray(keyMapping) && keyMapping.length > 1 && keyMapping.every(item => typeof item === 'string' && item.length > 1)) {
+  // 複数の読み方（ローマ字）がある場合
+  const primaryReading = keyMapping[0];
+  const keyElements = [`<span class="key-button">${primaryReading}</span>`];
 
-    // 現在入力すべき文字を取得
-    const currentChar = practiceText[userInput.length];
-
-    // 漢字かどうかを判定 (簡易的な判定: 漢字範囲または読み仮名が必要そうなもの)
-    // CJK Unified Ideographs range: \u4e00-\u9faf
-    const isKanji = /[\u4e00-\u9faf]/.test(currentChar);
-
-    if (isKanji) {
-      keyDisplay.innerHTML = '';
-      if (inputModeIndicator) {
-        inputModeIndicator.parentElement.style.visibility = 'hidden';
-      }
-      return;
-    } else {
-      if (inputModeIndicator) {
-        inputModeIndicator.parentElement.style.visibility = 'visible';
-      }
-    }
-
-    // 表示モード更新
-    updateInputModeDisplay(currentChar);
-
-
-    // 入力モード表示を更新
-    updateInputModeDisplay(currentChar);
-
-    // 既存のキーマッピングを取得
-    const keyMapping = jisKeyMap[currentChar];
-
-    if (!keyMapping) {
-      // マッピングが見つからない場合
-      const escapedChar = currentChar.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      keyDisplay.innerHTML = `<span style="color: #dc3545;">「${escapedChar}」</span>`;
-      return;
-    }
-
-    // 複数の読み方がある場合の処理（例：しゃ → ['sha', 'sya']）
-    if (Array.isArray(keyMapping) && keyMapping.length > 1 && keyMapping.every(item => typeof item === 'string' && item.length > 1)) {
-      // 複数の読み方（ローマ字）がある場合
-      const primaryReading = keyMapping[0];
-      const keyElements = [`<span class="key-button">${primaryReading}</span>`];
-
-      // 複数の読みがある場合は選択肢として表示
-      if (keyMapping.length > 1) {
-        const alternativeReadings = keyMapping.slice(1, 3); // 最大3つまで表示
-        const altElements = alternativeReadings.map(reading =>
-          `<span class="key-button alternative">${reading}</span>`
-        );
-        keyDisplay.innerHTML = keyElements.concat(altElements).join('<span class="key-or"> or </span>');
-      } else {
-        keyDisplay.innerHTML = keyElements[0];
-      }
-      return;
-    }
-
-    // 通常のキーマッピング（キーの組み合わせ）の場合
-    const keyElements = keyMapping.map(key => {
-      const escapedKey = key.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      return `<span class="key-button">${escapedKey}</span>`;
-    });
-
-    if (keyElements.length === 1) {
-      // 単一キーの場合
-      keyDisplay.innerHTML = keyElements[0];
-    } else {
-      // 複数キーの組み合わせの場合（例：Shift + R）
-      keyDisplay.innerHTML = keyElements.join('<span class="key-plus"> + </span>');
-    }
-  } catch (error) {
-    console.error('キー表示更新でエラーが発生しました:', error);
-    if (keyDisplay) {
-      keyDisplay.innerHTML = '<span style="color: #dc3545;">エラーが発生しました</span>';
-    }
+  // 複数の読みがある場合は選択肢として表示
+  if (keyMapping.length > 1) {
+    const alternativeReadings = keyMapping.slice(1, 3); // 最大3つまで表示
+    const altElements = alternativeReadings.map(reading =>
+      `<span class="key-button alternative">${reading}</span>`
+    );
+    keyDisplay.innerHTML = keyElements.concat(altElements).join('<span class="key-or"> or </span>');
+  } else {
+    keyDisplay.innerHTML = keyElements[0];
   }
+  return;
+}
+
+// 通常のキーマッピング（キーの組み合わせ）の場合
+const keyElements = keyMapping.map(key => {
+  const escapedKey = key.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return `<span class="key-button">${escapedKey}</span>`;
+});
+
+if (keyElements.length === 1) {
+  // 単一キーの場合
+  keyDisplay.innerHTML = keyElements[0];
+} else {
+  // 複数キーの組み合わせの場合（例：Shift + R）
+  keyDisplay.innerHTML = keyElements.join('<span class="key-plus"> + </span>');
+}
+  } catch (error) {
+  console.error('キー表示更新でエラーが発生しました:', error);
+  if (keyDisplay) {
+    keyDisplay.innerHTML = '<span style="color: #dc3545;">エラーが発生しました</span>';
+  }
+}
 }
 
 // スクロール関数は不要（新しいレイアウトでは使用しない）
