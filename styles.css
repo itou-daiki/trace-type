@@ -1,10 +1,25 @@
 /* ==================== TAILWIND CUSTOM STYLES ==================== */
 
-/* 非表示の入力フィールド */
+/* 非表示の入力フィールド (TextArea) */
 #text-input {
   position: absolute;
   left: -9999px;
   opacity: 0;
+  white-space: pre-wrap;
+}
+
+/* インラインIME変換中の文字 */
+.ime-composing-inline {
+  border-bottom: 2px solid #ff6b35;
+  background-color: rgba(255, 107, 53, 0.1);
+  color: #ff6b35 !important;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .ime-composing-inline {
+  border-bottom-color: #ff8c69;
+  background-color: rgba(255, 140, 105, 0.15);
+  color: #ff8c69 !important;
 }
 
 /* 文字状態のスタイル */
