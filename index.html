@@ -37,16 +37,16 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen transition-colors duration-300">
-  <div class="max-w-7xl mx-auto px-3 py-2 min-h-screen flex flex-col">
+  <div class="max-w-7xl mx-auto px-3 py-1 min-h-screen flex flex-col">
     <!-- ヘッダー -->
-    <header class="mb-2 text-center relative flex-shrink-0">
+    <header class="mb-1 text-center relative flex-shrink-0">
       <div class="flex justify-center items-center relative gap-8">
         <div class="flex-1 max-w-2xl">
-          <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary-500 to-blue-600 bg-clip-text text-transparent mb-1 tracking-tight">Trace Type</h1>
-          <h3 class="text-sm text-gray-600 dark:text-gray-400 opacity-80">Created by Dit-Lab.（Daiki ITO）</h3>
+          <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary-500 to-blue-600 bg-clip-text text-transparent mb-0.5 tracking-tight">Trace Type</h1>
+          <h3 class="text-xs text-gray-600 dark:text-gray-400 opacity-80">Created by Dit-Lab.（Daiki ITO）</h3>
         </div>
         <div class="absolute right-0 top-1/2 -translate-y-1/2 flex gap-3">
-          <button id="dark-mode-toggle" class="w-12 h-12 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md text-gray-800 dark:text-white cursor-pointer flex items-center justify-center text-xl transition-all hover:-translate-y-0.5 hover:shadow-lg border border-gray-200 dark:border-gray-700" title="ダークモード切り替え" aria-label="ダークモード切り替え">
+          <button id="dark-mode-toggle" class="w-10 h-10 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md text-gray-800 dark:text-white cursor-pointer flex items-center justify-center text-lg transition-all hover:-translate-y-0.5 hover:shadow-lg border border-gray-200 dark:border-gray-700" title="ダークモード切り替え" aria-label="ダークモード切り替え">
             <span class="theme-icon" id="theme-icon">🌙</span>
           </button>
         </div>
@@ -54,73 +54,73 @@
     </header>
 
     <!-- 指示メッセージエリア -->
-    <section class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-lg p-2 mb-2 shadow-lg relative overflow-hidden flex-shrink-0">
+    <section class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-lg p-1.5 mb-1.5 shadow-lg relative overflow-hidden flex-shrink-0">
       <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-primary-500 to-blue-600"></div>
-      <div class="grid grid-cols-3 gap-2">
-        <div class="bg-white/50 dark:bg-gray-700/50 backdrop-blur-md px-3 py-2 rounded-lg text-xs font-medium text-gray-800 dark:text-white border border-gray-200 dark:border-gray-600 text-center transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600 min-h-[32px] flex items-center justify-center">
+      <div class="grid grid-cols-3 gap-1.5">
+        <div class="bg-white/50 dark:bg-gray-700/50 backdrop-blur-md px-2 py-1.5 rounded-lg text-xs font-medium text-gray-800 dark:text-white border border-gray-200 dark:border-gray-600 text-center transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600 min-h-[28px] flex items-center justify-center">
           📱 <strong class="text-primary-600 dark:text-primary-400 font-bold ml-1">マウスを使わずに</strong>タイピングしよう
         </div>
-        <div class="bg-white/50 dark:bg-gray-700/50 backdrop-blur-md px-3 py-2 rounded-lg text-xs font-medium text-gray-800 dark:text-white border border-gray-200 dark:border-gray-600 text-center transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600 min-h-[32px] flex items-center justify-center">
-          🔄 変換は<kbd class="inline-block bg-gradient-to-r from-primary-500 to-blue-600 text-white px-2 py-1 rounded text-xs font-mono font-semibold border border-primary-400 shadow-sm mx-0.5">スペースキー</kbd>
+        <div class="bg-white/50 dark:bg-gray-700/50 backdrop-blur-md px-2 py-1.5 rounded-lg text-xs font-medium text-gray-800 dark:text-white border border-gray-200 dark:border-gray-600 text-center transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600 min-h-[28px] flex items-center justify-center">
+          🔄 変換は<kbd class="inline-block bg-gradient-to-r from-primary-500 to-blue-600 text-white px-2 py-0.5 rounded text-xs font-mono font-semibold border border-primary-400 shadow-sm mx-0.5">スペース</kbd>
         </div>
-        <div class="bg-white/50 dark:bg-gray-700/50 backdrop-blur-md px-3 py-2 rounded-lg text-xs font-medium text-gray-800 dark:text-white border border-gray-200 dark:border-gray-600 text-center transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600 min-h-[32px] flex items-center justify-center">
-          ⭐ 予測変換は<kbd class="inline-block bg-gradient-to-r from-primary-500 to-blue-600 text-white px-2 py-1 rounded text-xs font-mono font-semibold border border-primary-400 shadow-sm mx-0.5">Tabキー</kbd>
+        <div class="bg-white/50 dark:bg-gray-700/50 backdrop-blur-md px-2 py-1.5 rounded-lg text-xs font-medium text-gray-800 dark:text-white border border-gray-200 dark:border-gray-600 text-center transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600 min-h-[28px] flex items-center justify-center">
+          ⭐ 予測変換は<kbd class="inline-block bg-gradient-to-r from-primary-500 to-blue-600 text-white px-2 py-0.5 rounded text-xs font-mono font-semibold border border-primary-400 shadow-sm mx-0.5">Tab</kbd>
         </div>
       </div>
     </section>
 
     <!-- ファイル選択エリア -->
-    <section class="flex items-center gap-3 mb-2 px-4 py-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-lg shadow-md border border-gray-200 dark:border-gray-700 flex-shrink-0">
-      <label for="file-select" class="font-semibold text-gray-800 dark:text-white text-base whitespace-nowrap">練習テキストを選択：</label>
-      <select id="file-select" disabled aria-label="練習テキスト選択" class="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-white text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+    <section class="flex items-center gap-3 mb-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-lg shadow-md border border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <label for="file-select" class="font-semibold text-gray-800 dark:text-white text-sm whitespace-nowrap">練習テキストを選択：</label>
+      <select id="file-select" disabled aria-label="練習テキスト選択" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-white text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
         <option value="">ファイルを選択してください...</option>
         <!-- JS がここに option を追加 -->
       </select>
-      <button id="start-btn" disabled aria-label="タイピング練習を開始" class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-blue-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed disabled:shadow-sm disabled:transform-none">スタート</button>
+      <button id="start-btn" disabled aria-label="タイピング練習を開始" class="px-5 py-2 bg-gradient-to-r from-primary-500 to-blue-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed disabled:shadow-sm disabled:transform-none">スタート</button>
     </section>
 
     <!-- タイピングエリア：トレース型レイアウト -->
-    <div class="flex-1 flex flex-col gap-3 mb-2">
-      <!-- 現在の文字 + キーガイド（最上部・大きく表示） -->
-      <section class="bg-gradient-to-br from-primary-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 p-8 rounded-xl border-2 border-primary-300 dark:border-primary-700 shadow-xl">
+    <div class="flex-1 flex flex-col gap-2 mb-2">
+      <!-- お手本テキスト表示エリア（最上部） -->
+      <section class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md">
+        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-semibold uppercase tracking-wide">お手本テキスト</div>
+        <div id="reference-text" class="font-mono text-base leading-relaxed text-gray-600 dark:text-gray-400 max-h-28 overflow-auto whitespace-pre-wrap break-words"></div>
+      </section>
+
+      <!-- 現在の文字 + キーガイド -->
+      <section class="bg-gradient-to-br from-primary-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 p-4 rounded-xl border-2 border-primary-300 dark:border-primary-700 shadow-xl">
         <div class="text-center">
-          <div class="text-sm text-gray-600 dark:text-gray-400 mb-3 font-semibold">入力すべき文字</div>
-          <div id="current-char-display" class="text-8xl font-bold text-primary-600 dark:text-primary-400 mb-6 min-h-[120px] flex items-center justify-center font-mono"></div>
+          <div class="text-xs text-gray-600 dark:text-gray-400 mb-2 font-semibold">入力すべき文字</div>
+          <div id="current-char-display" class="text-6xl font-bold text-primary-600 dark:text-primary-400 mb-4 min-h-[80px] flex items-center justify-center font-mono"></div>
 
-          <div class="text-sm text-gray-600 dark:text-gray-300 mb-2 font-semibold uppercase tracking-wide">入力すべきキー: <span id="input-mode-indicator"></span></div>
-          <div id="key-display" class="font-mono text-3xl font-semibold text-primary-600 dark:text-primary-400 min-h-[50px] flex items-center justify-center gap-4 flex-wrap"></div>
+          <div class="text-xs text-gray-600 dark:text-gray-300 mb-1.5 font-semibold uppercase tracking-wide">入力すべきキー: <span id="input-mode-indicator"></span></div>
+          <div id="key-display" class="font-mono text-2xl font-semibold text-primary-600 dark:text-primary-400 min-h-[40px] flex items-center justify-center gap-3 flex-wrap mb-3"></div>
 
-          <!-- 入力フィールド（可視化） -->
-          <div class="mt-6">
-            <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold uppercase tracking-wide">入力中</div>
-            <input
-              type="text"
-              id="text-input"
-              class="w-full max-w-2xl mx-auto px-6 py-4 border-2 border-primary-300 dark:border-primary-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-2xl font-mono text-center transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              disabled
-              spellcheck="false"
-              autocomplete="off"
-              autocorrect="off"
-              autocapitalize="off"
-              aria-label="タイピング入力"
-              placeholder="ここに入力します..."
-            />
-          </div>
-
-          <div id="ime-composition-display" class="mt-4 px-4 py-2 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md border-2 border-purple-400 dark:border-purple-600 rounded-lg font-mono text-lg font-semibold text-purple-600 dark:text-purple-400 text-center min-h-[40px] hidden items-center justify-center shadow-md"></div>
+          <div id="ime-composition-display" class="mt-2 px-3 py-1.5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md border-2 border-purple-400 dark:border-purple-600 rounded-lg font-mono text-base font-semibold text-purple-600 dark:text-purple-400 text-center min-h-[32px] hidden items-center justify-center shadow-md"></div>
         </div>
       </section>
 
-      <!-- お手本テキスト表示エリア（中央） -->
-      <section class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md">
-        <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold uppercase tracking-wide">お手本テキスト</div>
-        <div id="reference-text" class="font-mono text-lg leading-relaxed text-gray-600 dark:text-gray-400 max-h-32 overflow-auto whitespace-pre-wrap break-words"></div>
+      <!-- 入力フィールド（大きく強調） -->
+      <section class="bg-white dark:bg-gray-800 backdrop-blur-lg p-6 rounded-xl border-2 border-primary-400 dark:border-primary-600 shadow-2xl">
+        <div class="text-sm text-gray-700 dark:text-gray-300 mb-3 font-bold text-center uppercase tracking-wide">📝 ここに入力してください</div>
+        <input
+          type="text"
+          id="text-input"
+          class="w-full px-8 py-8 border-3 border-primary-500 dark:border-primary-500 rounded-2xl bg-gradient-to-br from-white to-blue-50 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white text-5xl font-mono text-center transition-all focus:outline-none focus:ring-4 focus:ring-primary-400 focus:border-primary-600 shadow-inner"
+          disabled
+          spellcheck="false"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          aria-label="タイピング入力"
+          placeholder="ここに入力..."
+        />
       </section>
 
       <!-- 入力済みテキスト表示エリア（下部） -->
-      <section class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md">
-        <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-semibold uppercase tracking-wide">入力済み</div>
-        <div id="typed-text-display" class="font-mono text-lg leading-relaxed min-h-[80px] whitespace-pre-wrap break-words"></div>
+      <section class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md">
+        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-semibold uppercase tracking-wide">入力済み</div>
+        <div id="typed-text-display" class="font-mono text-base leading-relaxed min-h-[60px] max-h-[100px] overflow-auto whitespace-pre-wrap break-words"></div>
       </section>
 
       <!-- IME Preview Area -->
@@ -133,39 +133,39 @@
     </div>
 
     <!-- 進捗バー -->
-    <section class="mb-3 flex-shrink-0" id="progress-section" style="display: none;">
-      <div class="relative bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner border border-gray-300 dark:border-gray-600">
+    <section class="mb-2 flex-shrink-0" id="progress-section" style="display: none;">
+      <div class="relative bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden shadow-inner border border-gray-300 dark:border-gray-600">
         <div class="progress-bar h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-400 shadow-md" id="progress-bar"></div>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold text-gray-900 dark:text-white mix-blend-difference" id="progress-text">0%</div>
       </div>
     </section>
 
     <!-- 結果表示エリア -->
-    <section class="mb-3 flex-shrink-0">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg" id="stats-grid">
-        <div class="flex items-center justify-between px-6 py-5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-2xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
+    <section class="mb-2 flex-shrink-0">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg" id="stats-grid">
+        <div class="flex items-center justify-between px-4 py-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
           <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-blue-600 transition-all group-hover:w-2"></div>
-          <span class="text-sm text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">経過時間</span>
-          <span class="text-2xl font-bold text-gray-900 dark:text-white font-mono mx-2" id="timer">0.00</span>
-          <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">秒</span>
+          <span class="text-xs text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">経過時間</span>
+          <span class="text-xl font-bold text-gray-900 dark:text-white font-mono mx-1.5" id="timer">0.00</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">秒</span>
         </div>
-        <div class="flex items-center justify-between px-6 py-5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-2xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
+        <div class="flex items-center justify-between px-4 py-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
           <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-blue-600 transition-all group-hover:w-2"></div>
-          <span class="text-sm text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">入力文字</span>
-          <span class="text-2xl font-bold text-gray-900 dark:text-white font-mono mx-2" id="input-chars">0</span>
-          <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">文字</span>
+          <span class="text-xs text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">入力文字</span>
+          <span class="text-xl font-bold text-gray-900 dark:text-white font-mono mx-1.5" id="input-chars">0</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">文字</span>
         </div>
-        <div class="flex items-center justify-between px-6 py-5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-2xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
+        <div class="flex items-center justify-between px-4 py-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
           <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-blue-600 transition-all group-hover:w-2"></div>
-          <span class="text-sm text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">WPM</span>
-          <span class="text-2xl font-bold text-gray-900 dark:text-white font-mono mx-2" id="real-time-wpm">0</span>
-          <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">WPM</span>
+          <span class="text-xs text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">WPM</span>
+          <span class="text-xl font-bold text-gray-900 dark:text-white font-mono mx-1.5" id="real-time-wpm">0</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">WPM</span>
         </div>
-        <div class="flex items-center justify-between px-6 py-5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-2xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
+        <div class="flex items-center justify-between px-4 py-3 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden group">
           <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-blue-600 transition-all group-hover:w-2"></div>
-          <span class="text-sm text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">クリック</span>
-          <span class="text-2xl font-bold text-gray-900 dark:text-white font-mono mx-2" id="mouse-clicks">0</span>
-          <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">回</span>
+          <span class="text-xs text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">クリック</span>
+          <span class="text-xl font-bold text-gray-900 dark:text-white font-mono mx-1.5" id="mouse-clicks">0</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">回</span>
         </div>
       </div>
       <!-- Stats Toggle Button (only visible on low resolution) -->
