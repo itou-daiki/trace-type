@@ -81,6 +81,19 @@
 
     <!-- タイピングエリア：トレース型レイアウト -->
     <div class="flex-1 flex flex-col gap-2 mb-2">
+      <!-- 現在の文字 + キーガイド -->
+      <section class="bg-gradient-to-br from-primary-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 p-4 rounded-xl border-2 border-primary-300 dark:border-primary-700 shadow-xl">
+        <div class="text-center">
+          <div class="text-xs text-gray-600 dark:text-gray-400 mb-2 font-semibold">入力すべき文字</div>
+          <div id="current-char-display" class="text-6xl font-bold text-primary-600 dark:text-primary-400 mb-4 min-h-[80px] flex items-center justify-center font-mono"></div>
+
+          <div class="text-xs text-gray-600 dark:text-gray-300 mb-1.5 font-semibold uppercase tracking-wide">入力すべきキー: <span id="input-mode-indicator"></span></div>
+          <div id="key-display" class="font-mono text-2xl font-semibold text-primary-600 dark:text-primary-400 min-h-[40px] flex items-center justify-center gap-3 flex-wrap mb-3"></div>
+
+          <div id="ime-composition-display" class="mt-2 px-3 py-1.5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md border-2 border-purple-400 dark:border-purple-600 rounded-lg font-mono text-base font-semibold text-purple-600 dark:text-purple-400 text-center min-h-[32px] hidden items-center justify-center shadow-md"></div>
+        </div>
+      </section>
+
       <!-- お手本テキスト & 入力済みテキスト統合エリア -->
       <section class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md">
         <!-- お手本テキスト -->
@@ -96,19 +109,6 @@
         <div>
           <div class="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-semibold uppercase tracking-wide">入力済み</div>
           <div id="typed-text-display" class="font-mono text-base leading-relaxed min-h-[60px] max-h-[100px] overflow-auto whitespace-pre-wrap break-words"></div>
-        </div>
-      </section>
-
-      <!-- 現在の文字 + キーガイド -->
-      <section class="bg-gradient-to-br from-primary-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 p-4 rounded-xl border-2 border-primary-300 dark:border-primary-700 shadow-xl">
-        <div class="text-center">
-          <div class="text-xs text-gray-600 dark:text-gray-400 mb-2 font-semibold">入力すべき文字</div>
-          <div id="current-char-display" class="text-6xl font-bold text-primary-600 dark:text-primary-400 mb-4 min-h-[80px] flex items-center justify-center font-mono"></div>
-
-          <div class="text-xs text-gray-600 dark:text-gray-300 mb-1.5 font-semibold uppercase tracking-wide">入力すべきキー: <span id="input-mode-indicator"></span></div>
-          <div id="key-display" class="font-mono text-2xl font-semibold text-primary-600 dark:text-primary-400 min-h-[40px] flex items-center justify-center gap-3 flex-wrap mb-3"></div>
-
-          <div id="ime-composition-display" class="mt-2 px-3 py-1.5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-md border-2 border-purple-400 dark:border-purple-600 rounded-lg font-mono text-base font-semibold text-purple-600 dark:text-purple-400 text-center min-h-[32px] hidden items-center justify-center shadow-md"></div>
         </div>
       </section>
 
