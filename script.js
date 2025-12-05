@@ -146,8 +146,9 @@ window.addEventListener("DOMContentLoaded", () => {
     disablePasteAndDrop();
     setupMouseClickTracking();
     initializeDarkMode();
+    initializeLowResolutionLayout();
     setupErrorHandling();
-    
+
     console.log("✅ 初期化が完了しました");
   } catch (error) {
     console.error('初期化エラー:', error);
@@ -1087,19 +1088,3 @@ function setupErrorHandling() {
 }
 
 // スクロールリセット関数は不要（新しいレイアウトでは使用しない）
-
-// ---- アプリ初期化 ---- //
-window.addEventListener("DOMContentLoaded", function() {
-  console.log("🚀 Trace Type アプリケーションを読み込み中...");
-  
-  try {
-    loadFileList();
-    initializeDarkMode();
-    initializeLowResolutionLayout();
-    setupMouseClickTracking();
-    
-    console.log("✅ アプリケーションの初期化が完了しました！");
-  } catch (error) {
-    console.error('アプリ初期化エラー:', error);
-  }
-});
