@@ -734,19 +734,22 @@ function updateImeCompositionDisplay() {
 // ---- IME変換中の文字をキー表示エリアに表示 ---- //
 function updateImeCompositionKeyDisplay(compositionText) {
   if (!imeCompositionDisplay) return;
-  
+
   if (compositionText && compositionText.trim() !== '') {
     imeCompositionDisplay.textContent = `入力中: ${compositionText}`;
-    imeCompositionDisplay.style.display = 'block';
+    imeCompositionDisplay.classList.remove('hidden');
+    imeCompositionDisplay.classList.add('flex');
   } else {
-    imeCompositionDisplay.style.display = 'none';
+    imeCompositionDisplay.classList.add('hidden');
+    imeCompositionDisplay.classList.remove('flex');
   }
 }
 
 // ---- IME変換中の文字表示を非表示 ---- //
 function hideImeCompositionKeyDisplay() {
   if (imeCompositionDisplay) {
-    imeCompositionDisplay.style.display = 'none';
+    imeCompositionDisplay.classList.add('hidden');
+    imeCompositionDisplay.classList.remove('flex');
     imeCompositionDisplay.textContent = '';
   }
 }
