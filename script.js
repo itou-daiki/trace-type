@@ -98,50 +98,147 @@ const jisKeyMap = {
   '（': ['（'], '）': ['）'], '【': ['【'], '】': ['】'], '〈': ['〈'], '〉': ['〉'],
   '《': ['《'], '》': ['》'], '〔': ['〔'], '〕': ['〕'], '［': ['［'], '］': ['］'],
   '｛': ['｛'], '｝': ['｝'], '〜': ['〜'], '・': ['・'], '…': ['…'], '‥': ['‥'],
-  '！': ['！'], '？': ['？'], '：': ['：'], '；': ['；'], 'ー': ['ー'],
+  '！': ['！'], '？': ['！'], '：': ['：'], '；': ['；'], 'ー': ['ー'],
   '○': ['○'], '△': ['△']
 };
 
 // DOM 要素を取得
-const fileSelect = document.getElementById("file-select");
-const startBtn = document.getElementById("start-btn");
-const typingContainer = document.getElementById("typing-container");
-const textInput = document.getElementById("text-input");
-const timerSpan = document.getElementById("timer");
-const mouseClicksSpan = document.getElementById("mouse-clicks");
-const inputCharsSpan = document.getElementById("input-chars");
-const scoreArea = document.getElementById("score-area");
-const retryBtn = document.getElementById("retry-btn");
-// Removed old elements: reference-text, current-char-display, typed-text-display, key-display, etc.
+// DOM 要素 (初期化時に設定)
+let fileSelect = null;
+let startBtn = null;
+let typingContainer = null;
+let textInput = null;
+let timerSpan = null;
+let mouseClicksSpan = null;
+let inputCharsSpan = null;
+let scoreArea = null;
+let retryBtn = null;
 
-const progressSection = document.getElementById("progress-section");
-const progressBar = document.getElementById("progress-bar");
-const progressText = document.getElementById("progress-text");
-const realTimeWpmSpan = document.getElementById("real-time-wpm");
-const darkModeToggle = document.getElementById("dark-mode-toggle");
-const themeIcon = document.getElementById("theme-icon");
+let progressSection = null;
+let progressBar = null;
+let progressText = null;
+let realTimeWpmSpan = null;
+let darkModeToggle = null;
+let themeIcon = null;
+// No separate IME composition display needed as it is inline
+let imeCompositionDisplay = null; // Defined for compatibility if needed
 // No separate IME composition display needed as it is inline
 // const imeCompositionDisplay = document.getElementById("ime-composition-display");
+
+// ---- DOM要素初期化 ---- //
+function initializeDOM() {
+  fileSelect = document.getElementById("file-select");
+  startBtn = document.getElementById("start-btn");
+  typingContainer = document.getElementById("typing-container");
+  textInput = document.getElementById("text-input");
+  timerSpan = document.getElementById("timer");
+  mouseClicksSpan = document.getElementById("mouse-clicks");
+  inputCharsSpan = document.getElementById("input-chars");
+  scoreArea = document.getElementById("score-area");
+  retryBtn = document.getElementById("retry-btn");
+  progressSection = document.getElementById("progress-section");
+  progressBar = document.getElementById("progress-bar");
+  progressText = document.getElementById("progress-text");
+  realTimeWpmSpan = document.getElementById("real-time-wpm");
+  darkModeToggle = document.getElementById("dark-mode-toggle");
+  themeIcon = document.getElementById("theme-icon");
+  imeCompositionDisplay = document.getElementById("ime-preview");
+}
+
+// ---- イベントリスナー設定 ---- //
+function setupEventListeners() {
+  // スタートボタン
+  if (startBtn) {
+    startBtn.addEventListener("click", () => {
+      const selectedFile = fileSelect.value;
+      if (!selectedFile) {
+        alert("練習ファイルを選択してください。");
+        return;
+      }
+      fetchPracticeText(selectedFile);
+    });
+  }
+
+  // リトライボタン
+  if (retryBtn) {
+    retryBtn.addEventListener("click", () => {
+      if (practiceText) {
+        resetTypingArea();
+        renderDisplay();
+        activateTyping();
+      }
+    });
+  }
+
+  // グローバルキーボードショートカット
+  document.addEventListener("keydown", function (e) {
+    // ESCキーでリセット
+    if (e.key === "Escape" && practiceText) {
+      resetTypingArea();
+      renderDisplay();
+      activateTyping();
+    }
+
+    // F5キーでリロード（デフォルト動作を禁止してリセット）
+    if (e.key === "F5" && practiceText) {
+      e.preventDefault();
+      resetTypingArea();
+      renderDisplay();
+      activateTyping();
+    }
+  });
+}
+
+// ---- リアルタイムWPM更新 ---- //
+function updateRealTimeWPM(elapsedSeconds) {
+  if (elapsedSeconds > 0 && lockedLength > 0) {
+    const wpm = Math.round((lockedLength / 5) / (elapsedSeconds / 60));
+    if (realTimeWpmSpan) {
+      realTimeWpmSpan.textContent = wpm;
+    }
+  }
+}
+
+// ---- 進捗バー更新 ---- //
+function updateProgressBar() {
+  if (practiceText && progressBar && progressText) {
+    const progress = (userInput.length / practiceText.length) * 100;
+    progressBar.style.width = progress + "%";
+    progressText.textContent = Math.round(progress) + "%";
+  }
+}
 
 // ===== 初期化処理 ===== //
 window.addEventListener("DOMContentLoaded", () => {
   try {
     console.log("🚀 Trace Type アプリケーションを初期化中...");
 
-    // DOM要素の存在確認
+    // DOM要素を初期化
+    initializeDOM();
+
+    // DOM要素の存在確認 (initializeDOM内で取得失敗していないか)
     const requiredElements = [
-      'file-select', 'start-btn', 'typing-container',
-      'text-input', 'timer', 'mouse-clicks',
-      'input-chars'
+      fileSelect, startBtn, typingContainer,
+      textInput, timerSpan, mouseClicksSpan,
+      inputCharsSpan
     ];
 
-    const missingElements = requiredElements.filter(id => !document.getElementById(id));
-    if (missingElements.length > 0) {
-      console.error('必要なDOM要素が見つかりません:', missingElements);
+    if (requiredElements.some(el => !el)) {
+      console.error('必要なDOM要素が見つかりません');
+      // どの要素がないか特定
+      if (!fileSelect) console.error('Missing: file-select');
+      if (!startBtn) console.error('Missing: start-btn');
+      if (!typingContainer) console.error('Missing: typing-container');
+      if (!textInput) console.error('Missing: text-input');
+      if (!timerSpan) console.error('Missing: timer');
+      if (!mouseClicksSpan) console.error('Missing: mouse-clicks');
+      if (!inputCharsSpan) console.error('Missing: input-chars');
+
       alert('アプリケーションの初期化に失敗しました。ページをリロードしてください。');
       return;
     }
 
+    setupEventListeners();
     loadFileList();
     disablePasteAndDrop();
     setupMouseClickTracking();
@@ -198,15 +295,6 @@ function loadFileList() {
     });
 }
 
-// ---- スタートボタン クリック時 ---- //
-startBtn.addEventListener("click", () => {
-  const selectedFile = fileSelect.value;
-  if (!selectedFile) {
-    alert("練習ファイルを選択してください。");
-    return;
-  }
-  fetchPracticeText(selectedFile);
-});
 
 // ---- 選択した md ファイルを取得してプレーンテキスト化 ---- //
 function fetchPracticeText(filename) {
@@ -820,53 +908,6 @@ function calculateAndDisplayScore(elapsedSeconds) {
   }
 }
 
-// ---- リトライボタンのイベントリスナー ---- //
-if (retryBtn) {
-  retryBtn.addEventListener("click", () => {
-    if (practiceText) {
-      resetTypingArea();
-      renderDisplay();
-      activateTyping();
-    }
-  });
-}
-
-// ---- リアルタイムWPM更新 ---- //
-function updateRealTimeWPM(elapsedSeconds) {
-  if (elapsedSeconds > 0 && lockedLength > 0) {
-    const wpm = Math.round((lockedLength / 5) / (elapsedSeconds / 60));
-    if (realTimeWpmSpan) {
-      realTimeWpmSpan.textContent = wpm;
-    }
-  }
-}
-
-// ---- 進捗バー更新 ---- //
-function updateProgressBar() {
-  if (practiceText && progressBar && progressText) {
-    const progress = (userInput.length / practiceText.length) * 100;
-    progressBar.style.width = progress + "%";
-    progressText.textContent = Math.round(progress) + "%";
-  }
-}
-
-// ---- グローバルキーボードショートカット ---- //
-document.addEventListener("keydown", function (e) {
-  // ESCキーでリセット
-  if (e.key === "Escape" && practiceText) {
-    resetTypingArea();
-    renderDisplay();
-    activateTyping();
-  }
-
-  // F5キーでリロード（デフォルト動作を禁止してリセット）
-  if (e.key === "F5" && practiceText) {
-    e.preventDefault();
-    resetTypingArea();
-    renderDisplay();
-    activateTyping();
-  }
-});
 
 // ---- ダークモード初期化 ---- //
 function initializeDarkMode() {
