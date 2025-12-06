@@ -10,7 +10,8 @@
   white-space: pre-wrap;
   display: block;
   /* Ensure it is displayed */
-  min-height: 100px;
+  height: 180px;
+  min-height: 180px;
 }
 
 /* インラインIME変換中の文字 */
