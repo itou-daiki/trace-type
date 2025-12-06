@@ -410,123 +410,93 @@ function splitTextIntoLines(text) {
   return text.split('\n');
 }
 
-// ---- 表示を更新（行ごとにトレース） ---- //
+// ---- 表示を更新（見本テキストのハイライト） ---- //
 function renderDisplay() {
   try {
     if (!practiceText || practiceText.length === 0) {
+      if (typingContainer) typingContainer.innerHTML = "";
       return;
     }
 
     if (!typingContainer) return;
 
-    // 初回のみ、またはフルリロードが必要な場合以外は、
-    // 既存のDOMを更新する方が効率的だが、実装の単純化のため毎回再生成する
-    // (パフォーマンスに問題が出たら差分更新にする)
+    // パフォーマンスのため、既存のDOMがあれば更新、なければ生成としたいが
+    // ここではシンプルに再生成する（行数が多い場合は要注意）
     typingContainer.innerHTML = "";
 
     const lines = splitTextIntoLines(practiceText);
-
-    // ユーザー入力も行ごとに分割してマッピングする必要がある
-    // しかし、ユーザー入力はまだ途中かもしれない。
-    // practiceTextの行構造に合わせてユーザー入力を割り当てる。
 
     let currentInputHeader = 0; // ユーザー入力の現在位置
     let activeLineIndex = -1; // カーソルがある行
 
     lines.forEach((lineText, index) => {
-      // この行に該当するユーザー入力の範囲を特定
-      // 行末には目に見えない改行文字がある（最終行以外）
+      // この行の範囲
       const isLastLine = index === lines.length - 1;
       const lineLength = lineText.length + (isLastLine ? 0 : 1); // +1 for \n
 
-      const lineInput = userInput.slice(currentInputHeader, currentInputHeader + lineLength);
-      // この行の入力が完了しているか？
-      const isLineComplete = userInput.length >= currentInputHeader + lineLength;
-
-      // アクティブ行の判定: 
+      // カーソル位置判定
       // ユーザー入力がこの行の範囲内にある、または
-      // この行が未入力の最初の行である
+      // ユーザー入力がまだここまで達していない最初の行
       const isLineActive = (userInput.length >= currentInputHeader && userInput.length < currentInputHeader + lineLength);
-
       if (isLineActive) {
         activeLineIndex = index;
       }
+      // もしくは、入力が完了していて、かつ最後の行まで入力済みの場合の考慮は別途不要（activeLineIndexは更新されないだけ）
+      // ただし完了時は activeLineIndex = lines.length - 1 としたい場合もあるが、要件による
 
       // 行コンテナ作成
       const rowDiv = document.createElement('div');
       rowDiv.className = `line-row ${isLineActive ? 'active' : ''}`;
       rowDiv.id = `line-${index}`;
 
-      // 1. Reference Layer (お手本)
-      const refLayer = document.createElement('div');
-      refLayer.className = 'layer ref-layer';
-      refLayer.textContent = lineText; // 改行文字は表示されないが、line-rowの高さで制御
-      rowDiv.appendChild(refLayer);
-
-      // 2. Typed Layer (入力済み + IME)
-      const typedLayer = document.createElement('div');
-      typedLayer.className = 'layer typed-layer';
-
-      // 入力済み文字のレンダリング
-      // lineInput には \n が含まれる可能性があるが、表示上は無視するか、brにするか
-      // ここでは1文字ずつspanを作る
+      // 各文字をスパンで生成
       for (let i = 0; i < lineText.length; i++) {
         const refChar = lineText[i];
-        if (i < lineInput.length) {
-          const inputChar = lineInput[i];
-          const span = document.createElement('span');
-          span.textContent = refChar; // 表示するのは常にお手本の文字（色は変える）
+        const span = document.createElement('span');
+        span.textContent = refChar;
+        span.className = 'untyped-char'; // デフォルト
 
+        // 文字の絶対インデックス
+        const charGlobalIndex = currentInputHeader + i;
+
+        if (charGlobalIndex < userInput.length) {
+          // 入力済み
+          const inputChar = userInput[charGlobalIndex];
           if (inputChar === refChar) {
-            span.className = 'typed-char-correct';
+            span.className = 'typed-correct';
           } else {
-            span.className = 'typed-char-incorrect';
+            span.className = 'typed-incorrect';
           }
-          typedLayer.appendChild(span);
+        } else if (charGlobalIndex === userInput.length) {
+          // カーソル位置（次の入力位置）
+          span.className = 'current-char';
         }
+
+        rowDiv.appendChild(span);
       }
 
-      // 改行文字の処理 (最終行以外)
+      // 改行文字の扱い (表示のみ)
       if (!isLastLine) {
-        // お手本レイヤーに改行マークを表示するためのスペース確保（必要なら）
-        // オーバーレイなので、typed-layer 側にのみ表示または両方に表示
+        const returnSpan = document.createElement('span');
+        returnSpan.textContent = '↵';
+        returnSpan.className = 'return-mark untyped';
 
-        // お手本の方にもうっすらマークを出す
-        const refReturn = document.createElement('span');
-        refReturn.textContent = '↵';
-        refReturn.className = 'return-mark untyped';
-        refLayer.appendChild(refReturn);
-
-        // ユーザー入力の改行判定
-        // lineInputの長さが lineLine (text + 1) と同じなら改行まで入力済み
-        if (lineInput.length === lineLength) {
-          const returnSpan = document.createElement('span');
-          returnSpan.textContent = '↵';
-          // 改行コード自体の正誤判定は、userInputの該当箇所が \n かどうか
-          // lineInput の最後が \n であることはほぼ確定だが念のため
-          const inputChar = lineInput[lineInput.length - 1]; // The \n
-          const refChar = '\n';
-
-          if (inputChar === refChar) {
+        const returnGlobalIndex = currentInputHeader + lineText.length;
+        if (returnGlobalIndex < userInput.length) {
+          // 入力済み（改行済み）
+          // ユーザー入力の該当箇所が \n かどうかチェック
+          if (userInput[returnGlobalIndex] === '\n') {
             returnSpan.className = 'return-mark correct';
           } else {
             returnSpan.className = 'return-mark incorrect';
           }
-          typedLayer.appendChild(returnSpan);
+        } else if (returnGlobalIndex === userInput.length) {
+          returnSpan.className = 'current-char return-mark'; // カーソルが改行にある場合
         }
+        rowDiv.appendChild(returnSpan);
       }
 
-      // IME入力中の表示 (アクティブ行のみ)
-      if (isLineActive && isComposing && composingText) {
-        const compSpan = document.createElement('span');
-        compSpan.textContent = composingText;
-        compSpan.className = 'ime-composing-char';
-        typedLayer.appendChild(compSpan);
-      }
-
-      rowDiv.appendChild(typedLayer);
       typingContainer.appendChild(rowDiv);
-
       currentInputHeader += lineLength;
     });
 
@@ -678,7 +648,9 @@ function onCompositionUpdate(e) {
   // updateImeCompositionDisplay(); // Removed
   // updateImeCompositionKeyDisplay(e.data || ''); // Removed
 
-  // インライン表示のために再描画
+  // インライン表示のために再描画（見本側にも何らかのアクションが必要ならここ）
+  // 分離モードでは、IME入力中の文字は textarea 側に自然に表示されるため、
+  // 見本側には特に何も表示しなくて良い（あるいはカーソル位置を強調するなど）
   renderDisplay();
 }
 

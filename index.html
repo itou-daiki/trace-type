@@ -98,18 +98,24 @@
         class="px-5 py-2 bg-gradient-to-r from-primary-500 to-blue-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed disabled:shadow-sm disabled:transform-none">スタート</button>
     </section>
 
-    <!-- タイピングコンテナ（行ごとのオーバーレイ表示） -->
-    <section id="typing-container"></section>
+    <!-- タイピングコンテナ（見本テキスト） -->
+    <div class="mb-2 px-1">
+      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 pl-1">見本テキスト</h2>
+      <section id="typing-container"></section>
+    </div>
 
-    <!-- 入力フィールド（大きく強調） -->
-    <section
-      class="bg-white dark:bg-gray-800 backdrop-blur-lg p-6 rounded-xl border-2 border-primary-400 dark:border-primary-600 shadow-2xl">
+    <!-- 入力フィールド -->
+    <div class="px-1">
+      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 pl-1">入力テキスト</h2>
+      <section
+        class="bg-white dark:bg-gray-800 backdrop-blur-lg p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md">
 
-      <textarea id="text-input"
-        class="w-full px-8 py-8 border-3 border-primary-500 dark:border-primary-500 rounded-2xl bg-gradient-to-br from-white to-blue-50 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white text-5xl font-mono text-center transition-all focus:outline-none focus:ring-4 focus:ring-primary-400 focus:border-primary-600 shadow-inner resize-none overflow-hidden"
-        disabled spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" aria-label="タイピング入力"
-        placeholder="ここに入力..." rows="1"></textarea>
-    </section>
+        <textarea id="text-input"
+          class="w-full px-4 py-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-mono text-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-500 shadow-inner resize-none overflow-y-auto"
+          disabled spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" aria-label="タイピング入力"
+          placeholder="ここに入力..." rows="5"></textarea>
+      </section>
+    </div>
 
     <!-- IME Preview Area -->
     <div id="ime-preview" class="ime-preview"></div>

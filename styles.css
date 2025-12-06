@@ -2,10 +2,15 @@
 
 /* 非表示の入力フィールド (TextArea) */
 #text-input {
-  position: absolute;
-  left: -9999px;
-  opacity: 0;
+  /* position: absolute; removed to make it flow */
+  /* left: -9999px; removed */
+  /* opacity: 0; removed */
+  width: 100%;
+  box-sizing: border-box;
   white-space: pre-wrap;
+  display: block;
+  /* Ensure it is displayed */
+  min-height: 150px;
 }
 
 /* インラインIME変換中の文字 */
@@ -24,26 +29,26 @@
 
 /* 文字状態のスタイル */
 .untyped-char {
-  color: #a3a3a3;
-  opacity: 0.5;
+  color: #4b5563;
+  /* Gray-600 */
 }
 
 [data-theme="dark"] .untyped-char {
-  color: #737373;
-  opacity: 0.5;
+  color: #9ca3af;
+  /* Gray-400 */
 }
 
 .current-char {
   background: #cce7ff !important;
   color: #0056b3 !important;
-  border: 2px solid #339fff !important;
+  border-bottom: 3px solid #339fff !important;
+  /* border-radius: 4px !important; Remove full border for underline style if preferred, keeping box for now */
   border-radius: 4px !important;
   animation: subtleBlink 1.2s infinite !important;
   font-weight: 600 !important;
-  z-index: 20 !important;
-  position: relative !important;
-  padding: 2px 4px !important;
-  margin: 0 1px !important;
+  /* z-index: 20 !important; */
+  /* position: relative !important; */
+  padding: 0 2px !important;
 }
 
 [data-theme="dark"] .current-char {
@@ -83,64 +88,69 @@
 }
 
 .typed-correct {
-  background: #dcfce7 !important;
-  color: #15803d !important;
+  /* background: #dcfce7 !important; Removed bg to keep it cleaner, or keep subtle */
+  color: #10b981 !important;
+  /* Emerald 500 */
   font-weight: 600 !important;
-  border-radius: 4px !important;
-  padding: 2px 4px !important;
-  border: 1px solid #86efac !important;
-  position: relative !important;
+  /* border-radius: 4px !important; */
+  /* padding: 2px 4px !important; */
+  /* border: 1px solid #86efac !important; */
+  /* position: relative !important; */
 }
 
 [data-theme="dark"] .typed-correct {
-  background: #14532d !important;
-  color: #86efac !important;
-  border-color: #166534 !important;
+  /* background: #14532d !important; */
+  color: #34d399 !important;
+  /* border-color: #166534 !important; */
 }
 
 .typed-incorrect {
   background: #fee2e2 !important;
-  color: #b91c1c !important;
+  color: #ef4444 !important;
+  /* Red 500 */
   font-weight: 600 !important;
-  text-decoration: line-through !important;
-  border-radius: 4px !important;
-  padding: 2px 4px !important;
-  border: 1px solid #fca5a5 !important;
-  position: relative !important;
+  /* text-decoration: line-through !important; */
+  /* border-radius: 4px !important; */
+  /* padding: 2px 4px !important; */
+  border-bottom: 2px solid #ef4444 !important;
+  /* position: relative !important; */
 }
 
 [data-theme="dark"] .typed-incorrect {
   background: #7f1d1d !important;
-  color: #fca5a5 !important;
-  border-color: #991b1b !important;
+  color: #f87171 !important;
+  border-color: #f87171 !important;
 }
 
 .typed-locked {
-  background: transparent !important;
-  color: #16a34a !important;
+  /* background: transparent !important; */
+  color: #059669 !important;
+  /* Emerald 600 */
   font-weight: 600 !important;
-  position: relative !important;
-  opacity: 0.8;
+  /* position: relative !important; */
+  /* opacity: 0.8; */
 }
 
 [data-theme="dark"] .typed-locked {
-  color: #4ade80 !important;
+  color: #10b981 !important;
 }
 
 /* IME変換スタイル */
 .ime-composing {
-  background: linear-gradient(135deg, #000000 0%, #333333 100%) !important;
-  color: #ffffff !important;
-  font-weight: 700 !important;
-  border: 3px solid #ff6b35 !important;
-  border-radius: 6px !important;
-  padding: 3px 6px !important;
-  margin: 0 2px !important;
-  position: relative !important;
-  z-index: 30 !important;
-  box-shadow: 0 0 15px rgba(255, 107, 53, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-  animation: imeGlow 1s ease-in-out infinite alternate !important;
+  /* background: linear-gradient(135deg, #000000 0%, #333333 100%) !important; */
+  /* color: #ffffff !important; */
+  /* font-weight: 700 !important; */
+  text-decoration: underline wavy #ff6b35;
+  /* border: 3px solid #ff6b35 !important; */
+  /* border-radius: 6px !important; */
+  /* padding: 3px 6px !important; */
+  /* margin: 0 2px !important; */
+  /* position: relative !important; */
+  /* z-index: 30 !important; */
+  /* box-shadow: 0 0 15px rgba(255, 107, 53, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important; */
+  /* animation: imeGlow 1s ease-in-out infinite alternate !important; */
 }
+
 
 @keyframes imeGlow {
   0% {
@@ -332,109 +342,55 @@ textarea:focus-visible {
 /* ==================== LINE TRACING STYLES ==================== */
 
 #typing-container {
-  position: relative;
+  /* position: relative; */
   width: 100%;
-  height: 400px;
-  /* Increased height */
+  height: 250px;
+  /* Limit height of sample text */
   overflow-y: auto;
   background: white;
-  /* Cleaner background */
-  border-radius: 16px;
-  padding: 32px;
-  /* More breathing room */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 1.5rem;
-  /* Larger font */
-  line-height: 2;
+  font-size: 1.25rem;
+  /* Slightly smaller than before to fit more */
+  line-height: 1.8;
   scroll-behavior: smooth;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
 [data-theme="dark"] #typing-container {
   background: #1e293b;
-  border-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .line-row {
-  position: relative;
+  /* position: relative; */
   width: 100%;
-  min-height: 2em;
-  margin-bottom: 8px;
-  display: flex;
-  /* Keeps vertical alignment if needed, but layers are blocks now */
-  justify-content: flex-start;
-  /* Align start */
-  padding: 8px 0;
-  /* Vertical padding only */
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  opacity: 0.4;
-  filter: blur(0.5px);
+  min-height: 1.5em;
+  margin-bottom: 4px;
+  /* display: flex; removed, simple block flow */
+  /* justify-content: flex-start; */
+  /* padding: 8px 0; */
+  border-radius: 4px;
+  /* transition: all 0.3s ease; */
+  /* opacity: 0.4; */
+  /* filter: blur(0.5px); */
 }
 
+/*
 .line-row.active {
-  background: rgba(59, 130, 246, 0.05);
-  /* Very subtle blue tint */
+  background: rgba(59, 130, 246, 0.1);
   opacity: 1;
-  /* Highlight active line */
   filter: none;
-  transform: scale(1.02);
-  /* Slight zoom for focus */
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
-  z-index: 10;
+  transform: none;
+  box-shadow: none;
 }
+*/
 
-[data-theme="dark"] .line-row.active {
-  background: rgba(30, 58, 138, 0.2);
-}
+/* Removed overlay structure styles (ref-layer, typed-layer) as they are no longer needed */
 
-/* Base style for both layers */
-.layer {
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  letter-spacing: 0.05em;
-  white-space: pre-wrap;
-  word-break: break-all;
-  pointer-events: none;
-  width: 100%;
-  padding: 0 16px;
-  /* Moved padding here for perfect alignment */
-}
-
-.ref-layer {
-  position: relative;
-  /* Takes up space in the document flow */
-  color: #94a3b8;
-  z-index: 1;
-}
-
-[data-theme="dark"] .ref-layer {
-  color: #475569;
-}
-
-.typed-layer {
-  position: absolute;
-  /* Overlays perfectly */
-  top: 0;
-  left: 0;
-  height: 100%;
-  color: transparent;
-  z-index: 2;
-}
-
-/* Character States */
-.typed-char-correct {
-  color: #059669;
-  /* Emerald 600 */
-  text-shadow: 0 0 1px rgba(5, 150, 105, 0.2);
-}
-
-[data-theme="dark"] .typed-char-correct {
-  color: #34d399;
-  /* Emerald 400 */
-}
 
 .typed-char-incorrect {
   color: #dc2626;
