@@ -298,8 +298,9 @@ textarea:focus-visible {
 .line-row {
   /* position: relative; */
   width: 100%;
-  min-height: 1.4em;
-  margin-bottom: 2px;
+  /* min-height: 1.4em; removed to match textarea line-height */
+  /* margin-bottom: 2px; removed to match textarea flow */
+
   /* display: flex; removed, simple block flow */
   /* justify-content: flex-start; */
   /* padding: 8px 0; */
