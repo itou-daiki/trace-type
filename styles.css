@@ -10,7 +10,7 @@
   white-space: pre-wrap;
   display: block;
   /* Ensure it is displayed */
-  min-height: 150px;
+  min-height: 100px;
 }
 
 /* インラインIME変換中の文字 */
@@ -290,20 +290,20 @@ textarea:focus-visible {
 #typing-container {
   /* position: relative; */
   width: 100%;
-  height: 250px;
+  height: 180px;
   /* Limit height of sample text */
   overflow-y: auto;
   background: white;
   border-radius: 12px;
-  padding: 24px;
+  padding: 16px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.25rem;
   /* Slightly smaller than before to fit more */
-  line-height: 1.8;
+  line-height: 1.6;
   scroll-behavior: smooth;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  margin-bottom: 8px;
 }
 
 [data-theme="dark"] #typing-container {
@@ -314,8 +314,8 @@ textarea:focus-visible {
 .line-row {
   /* position: relative; */
   width: 100%;
-  min-height: 1.5em;
-  margin-bottom: 4px;
+  min-height: 1.4em;
+  margin-bottom: 2px;
   /* display: flex; removed, simple block flow */
   /* justify-content: flex-start; */
   /* padding: 8px 0; */
