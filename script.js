@@ -142,7 +142,7 @@ function initializeDOM() {
   realTimeWpmSpan = document.getElementById("real-time-wpm");
   darkModeToggle = document.getElementById("dark-mode-toggle");
   themeIcon = document.getElementById("theme-icon");
-  imeCompositionDisplay = document.getElementById("ime-preview");
+  imeCompositionDisplay = null; // No longer used
 }
 
 // ---- イベントリスナー設定 ---- //
@@ -397,7 +397,7 @@ function resetTypingArea() {
     isComposing = false;
     composingText = "";
     hideImeIndicator();
-    hideImePreview();
+
 
   } catch (error) {
     console.error('タイピングエリアリセットエラー:', error);
@@ -638,15 +638,13 @@ function onCompositionStart(e) {
   isComposing = true;
   composingText = ""; // 開始時にリセット
   showImeIndicator();
-  // updateImeCompositionDisplay(); // Removed
 }
 
 // ---- IME変換更新時の処理 ---- //
 function onCompositionUpdate(e) {
   composingText = e.data || '';
-  updateImePreview(e.data || '');
-  // updateImeCompositionDisplay(); // Removed
-  // updateImeCompositionKeyDisplay(e.data || ''); // Removed
+  // Removed custom preview updates as textarea handles it natively
+
 
   // インライン表示のために再描画（見本側にも何らかのアクションが必要ならここ）
   // 分離モードでは、IME入力中の文字は textarea 側に自然に表示されるため、
@@ -659,7 +657,7 @@ function onCompositionEnd(e) {
   isComposing = false;
   composingText = ""; // 確定したのでリセット
   hideImeIndicator();
-  hideImePreview();
+
   // hideImeCompositionKeyDisplay(); // Removed
   // updateImeCompositionDisplay(); // Removed
 
@@ -775,15 +773,66 @@ function updateInputCharsDisplay() {
   }
 }
 
-// ---- IME状態インジケーター表示 ---- //
+// ---- IMEインジケータ表示 ---- //
 function showImeIndicator() {
-  const indicator = document.getElementById('ime-indicator');
+  const indicator = document.getElementById("ime-indicator");
   if (indicator) {
-    indicator.classList.add('active');
+    indicator.classList.add("active");
   }
 }
 
-// ---- IME状態インジケーター非表示 ---- //
+// ---- IMEインジケータ非表示 ---- //
+function hideImeIndicator() {
+  const indicator = document.getElementById("ime-indicator");
+  if (indicator) {
+    indicator.classList.remove("active");
+  }
+}
+
+// ---- ダークモード初期化 ---- //
+function initializeDarkMode() {
+  const isDark = localStorage.getItem('theme') === 'dark' ||
+    (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  if (isDark) {
+    document.documentElement.classList.add('dark');
+    themeIcon.textContent = '☀️';
+  } else {
+    document.documentElement.classList.remove('dark');
+    themeIcon.textContent = '🌙';
+  }
+
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      if (document.documentElement.classList.contains('dark')) {
+        localStorage.setItem('theme', 'dark');
+        themeIcon.textContent = '☀️';
+      } else {
+        localStorage.setItem('theme', 'light');
+        themeIcon.textContent = '🌙';
+      }
+    });
+  }
+}
+
+// ---- 低解像度レイアウト初期化 ---- //
+function initializeLowResolutionLayout() {
+  // 必要に応じて実装
+}
+
+// ---- エラーハンドリング設定 ---- //
+function setupErrorHandling() {
+  window.addEventListener('error', (event) => {
+    console.error('Global error caught:', event.error);
+  });
+}
+
+// ---- サウンド再生 ---- //
+function playSound(type) {
+  // 簡易サウンド実装 (Web Audio API or HTML5 Audio)
+  // 今回は省略、または必要に応じて追加
+}
 function hideImeIndicator() {
   const indicator = document.getElementById('ime-indicator');
   if (indicator) {
