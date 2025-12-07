@@ -11,6 +11,10 @@ let totalKeystrokes = 0;    // 総キーストローク数
 let errorCount = 0;         // エラー回数
 let soundEnabled = true;    // サウンド有効フラグ
 
+// Input Guide Elements
+let guideNextCharElement = null;
+let guideKeyHintElement = null;
+
 // ---- JIS配列キーマッピング ---- //
 const jisKeyMap = {
   // 英字（小文字）
@@ -143,6 +147,10 @@ function initializeDOM() {
   darkModeToggle = document.getElementById("dark-mode-toggle");
   themeIcon = document.getElementById("theme-icon");
   imeCompositionDisplay = null; // No longer used
+
+  // Input Guide Elements
+  guideNextCharElement = document.getElementById("guide-next-char");
+  guideKeyHintElement = document.getElementById("guide-key-hint");
 }
 
 // ---- イベントリスナー設定 ---- //
@@ -508,6 +516,9 @@ function renderDisplay() {
       }
     }
 
+    // 入力ガイドを更新
+    updateInputGuide();
+
   } catch (error) {
     console.error('表示更新でエラーが発生しました:', error);
   }
@@ -787,6 +798,74 @@ function hideImeIndicator() {
   if (indicator) {
     indicator.classList.remove("active");
   }
+}
+
+// ---- 入力ガイド更新 ---- //
+function updateInputGuide() {
+  if (!guideNextCharElement || !guideKeyHintElement) return;
+
+  // テキストがない、または完了している場合
+  if (!practiceText || userInput.length >= practiceText.length) {
+    guideNextCharElement.textContent = "-";
+    guideKeyHintElement.innerHTML = '<span class="text-sm text-gray-500 dark:text-gray-400">完了！</span>';
+    return;
+  }
+
+  const nextCharIndex = userInput.length;
+  const nextChar = practiceText[nextCharIndex];
+
+  // 次の文字を表示
+  // 改行文字の場合は表示を変える
+  if (nextChar === '\n') {
+    guideNextCharElement.textContent = '↵';
+  } else {
+    guideNextCharElement.textContent = nextChar;
+  }
+
+  // キーヒントを表示
+  guideKeyHintElement.innerHTML = ''; // クリア
+
+  // jisKeyMapから検索
+  let keys = jisKeyMap[nextChar];
+
+  // 見つからない場合は文字そのものを表示（漢字など）
+  if (!keys) {
+    // もし改行ならEnter
+    if (nextChar === '\n') {
+      keys = ['Enter'];
+    } else {
+      keys = [nextChar];
+    }
+  }
+
+  // キーを表示用HTMLに変換して追加
+  keys.forEach(key => {
+    const keySpan = document.createElement('span');
+    keySpan.className = 'key-button'; // styles.cssで定義済み
+
+    // Shiftなどの修飾キーを含む場合の表示調整（例: ['Shift', 'A']）は
+    // jisKeyMapの構造上、配列の要素として渡ってくるわけではなく、要素自体が配列になるわけではない
+    // jisKeyMapの定義を見ると: 'A': ['Shift', 'A'] となっている
+    // つまり keys は ['Shift', 'A'] のような配列になる可能性がある
+
+    // このループは keys配列（文字の構成要素）を回しているつもりだが、JISマップの定義は
+    // 1つの文字に対して「キーの配列」を返している。
+    // 例: 'か' -> ['k', 'a'] （2文字打つ）
+    // 例: 'A' -> ['Shift', 'A'] （Shift押しながらA）
+
+    // なので、これは「一連のキーストローク」なのか「同時押し」なのかを区別する必要があるが、
+    // 現在のマップ定義は混在している。
+    // 英大文字: ['Shift', 'A'] -> ShiftとAの同時押し（あるいは順押し）
+    // ひらがな: ['k', 'a'] -> kのあとにa
+
+    // 簡易的にすべて「キー」として並べる
+    keySpan.textContent = key;
+    guideKeyHintElement.appendChild(keySpan);
+
+    // キーの間にプラス記号などは入れない（ローマ字入力 k a などがあるため）
+    // ただし、Shiftの場合は + があったほうがわかりやすいかも？
+    // 現状は単純に並べる
+  });
 }
 
 // ---- ダークモード初期化 ---- //

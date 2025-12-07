@@ -98,6 +98,24 @@
         class="px-5 py-2 bg-gradient-to-r from-primary-500 to-blue-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed disabled:shadow-sm disabled:transform-none">スタート</button>
     </section>
 
+    <!-- 入力すべきテキスト（ガイド）エリア -->
+    <div class="mb-1 px-1">
+      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-0.5 pl-1">入力すべきテキスト</h2>
+      <section
+        class="bg-white dark:bg-gray-800 backdrop-blur-lg p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md flex items-center gap-4 min-h-[80px]">
+        <!-- 次の文字 -->
+        <div id="guide-next-char"
+          class="text-4xl font-bold text-gray-800 dark:text-white font-mono w-16 text-center border-r border-gray-200 dark:border-gray-700">
+          -
+        </div>
+        <!-- 入力キーヒント -->
+        <div id="guide-key-hint" class="flex flex-wrap gap-2 flex-1">
+          <!-- JSでキーを追加 -->
+          <span class="text-sm text-gray-500 dark:text-gray-400">練習を開始してください</span>
+        </div>
+      </section>
+    </div>
+
     <!-- タイピングコンテナ（見本テキスト） -->
     <div class="mb-1 px-1">
       <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-0.5 pl-1">見本テキスト</h2>
