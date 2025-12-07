@@ -13,6 +13,7 @@ let soundEnabled = true;    // サウンド有効フラグ
 
 // Input Guide Elements
 let guideNextCharElement = null;
+let guideCharWidthElement = null;
 let guideKeyHintElement = null;
 
 // ---- JIS配列キーマッピング ---- //
@@ -150,6 +151,7 @@ function initializeDOM() {
 
   // Input Guide Elements
   guideNextCharElement = document.getElementById("guide-next-char");
+  guideCharWidthElement = document.getElementById("guide-char-width");
   guideKeyHintElement = document.getElementById("guide-key-hint");
 }
 
@@ -800,19 +802,36 @@ function hideImeIndicator() {
   }
 }
 
+
 // ---- 入力ガイド更新 ---- //
 function updateInputGuide() {
-  if (!guideNextCharElement || !guideKeyHintElement) return;
+  if (!guideNextCharElement || !guideKeyHintElement || !guideCharWidthElement) return;
 
   // テキストがない、または完了している場合
   if (!practiceText || userInput.length >= practiceText.length) {
     guideNextCharElement.textContent = "-";
+    guideCharWidthElement.textContent = "-";
+    guideCharWidthElement.className = "text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded text-white bg-gray-400";
     guideKeyHintElement.innerHTML = '<span class="text-sm text-gray-500 dark:text-gray-400">完了！</span>';
     return;
   }
 
   const nextCharIndex = userInput.length;
   const nextChar = practiceText[nextCharIndex];
+
+  // 半角・全角判定
+  // ASCIIコード範囲(0x00-0x7F)と半角カタカナ(0xFF61-0xFF9F)を半角とする
+  const isHalf = /^[\x00-\x7F\uff61-\uff9f]+$/.test(nextChar);
+
+  if (isHalf) {
+    guideCharWidthElement.textContent = "半角";
+    // Blue-500 for Half-width
+    guideCharWidthElement.className = "text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded text-white bg-blue-500";
+  } else {
+    guideCharWidthElement.textContent = "全角";
+    // Green-500 for Full-width
+    guideCharWidthElement.className = "text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded text-white bg-green-500";
+  }
 
   // 次の文字を表示
   // 改行文字の場合は表示を変える
