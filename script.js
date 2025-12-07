@@ -833,6 +833,28 @@ function updateInputGuide() {
     guideCharWidthElement.className = "text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded text-white bg-green-500";
   }
 
+  // エラー判定（現在の入力長がロック長より長い場合はミスしている）
+  if (userInput.length > lockedLength) {
+    // エラー表示
+    guideCharWidthElement.textContent = "エラー";
+    guideCharWidthElement.className = "text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded text-white bg-red-500";
+
+    // ガイドテキスト
+    guideNextCharElement.textContent = "一つ前の文字を間違えています";
+    guideNextCharElement.className = "text-lg font-bold text-red-600 dark:text-red-400 font-mono min-w-[2rem] text-center leading-none flex-shrink-0"; // 文字サイズを小さく調整
+
+    // キーヒント
+    guideKeyHintElement.innerHTML = '';
+    const bsSpan = document.createElement('span');
+    bsSpan.className = 'key-button';
+    bsSpan.textContent = 'BackSpace';
+    guideKeyHintElement.appendChild(bsSpan);
+    return;
+  }
+
+  // 通常表示に戻す（エラーでない場合）
+  guideNextCharElement.className = "text-3xl font-bold text-gray-800 dark:text-white font-mono min-w-[2rem] text-center leading-none flex-shrink-0";
+
   // 次の文字を表示
   // 改行文字の場合は表示を変える
   if (nextChar === '\n') {
