@@ -10,8 +10,10 @@
   white-space: pre-wrap;
   display: block;
   /* Ensure it is displayed */
-  height: 180px;
-  min-height: 180px;
+  height: 100%;
+  /* Changed from 180px to 100% for flex layout */
+  /* min-height: 180px; Removed */
+  resize: none;
 }
 
 /* インラインIME変換中の文字 */
