@@ -847,13 +847,14 @@ function updateInputGuide() {
   // jisKeyMapから検索
   let keys = jisKeyMap[nextChar];
 
-  // 見つからない場合は文字そのものを表示（漢字など）
+  // 見つからない場合はキーを表示しない（漢字など）
   if (!keys) {
-    // もし改行ならEnter
+    // もし改行ならEnterのみ表示
     if (nextChar === '\n') {
       keys = ['Enter'];
     } else {
-      keys = [nextChar];
+      // 漢字などは重複表示になるためヒントなし
+      keys = [];
     }
   }
 

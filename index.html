@@ -102,21 +102,24 @@
     <div class="mb-1 px-1">
       <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-0.5 pl-1">入力ガイド</h2>
       <section
-        class="bg-white dark:bg-gray-800 backdrop-blur-lg p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md flex justify-center items-center gap-6 min-h-[80px]">
-        <!-- 次の文字エリア -->
-        <div
-          class="flex flex-col items-center justify-center border-r-2 border-gray-200 dark:border-gray-600 pr-6 gap-2">
-          <span id="guide-char-width"
-            class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded text-white bg-gray-400">
-            -
-          </span>
-          <div id="guide-next-char"
-            class="text-4xl font-bold text-gray-800 dark:text-white font-mono min-w-[3rem] text-center leading-none">
-            -
-          </div>
+        class="bg-white dark:bg-gray-800 backdrop-blur-lg p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md flex items-center gap-4 min-h-[60px]">
+        <!-- 全角/半角バッジ -->
+        <span id="guide-char-width"
+          class="text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded text-white bg-gray-400 min-w-[3rem] text-center flex-shrink-0">
+          -
+        </span>
+
+        <!-- 次の文字 -->
+        <div id="guide-next-char"
+          class="text-3xl font-bold text-gray-800 dark:text-white font-mono min-w-[2rem] text-center leading-none flex-shrink-0">
+          -
         </div>
+
+        <!-- 区切り線（オプション） -->
+        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700 mx-1"></div>
+
         <!-- 入力キーヒント -->
-        <div id="guide-key-hint" class="flex flex-wrap gap-2 justify-center items-center">
+        <div id="guide-key-hint" class="flex flex-wrap gap-1.5 items-center">
           <!-- JSでキーを追加 -->
           <span class="text-sm text-gray-500 dark:text-gray-400">練習を開始してください</span>
         </div>
