@@ -386,3 +386,51 @@ textarea:focus-visible {
   color: #fb923c;
   border-bottom-color: #fb923c;
 }
+
+/* ==================== SCROLLBAR STYLES ==================== */
+/* Custom rounded scrollbars for a modern look */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 9999px;
+  margin: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  /* gray-400 equivalent with opacity */
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  /* Creates padding effect inside track */
+  background-clip: content-box;
+  transition: background-color 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.8);
+  /* gray-500 equivalent */
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  /* slate-400 equivalent */
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(203, 213, 225, 0.6);
+  /* slate-300 equivalent */
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
